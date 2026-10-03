@@ -1,0 +1,1822 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ciggie-Puffs — $CIGGIE ledger-reactive collection</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#0b0d12; color:#e7e9ee; font:14px/1.5 system-ui, sans-serif; }
+  header { padding:16px 22px 6px; } h1 { font-size:19px; margin:0 0 2px; } .sub{color:#9aa4b2;font-size:12px;}
+  #ctrls { display:flex; gap:22px; flex-wrap:wrap; padding:8px 22px 14px; border-bottom:1px solid #1c2130; }
+  .ctl { min-width:230px; } .ctl label{display:block;font-size:12px;color:#c7cdda;margin-bottom:2px;}
+  .ctl .val{color:#6fe3b0;font-variant-numeric:tabular-nums;} input[type=range]{width:100%;}
+  #grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; padding:16px 22px 40px; }
+  .cell { background:#121620; border:1px solid #202636; border-radius:10px; padding:8px; text-align:center; }
+  .cell canvas{ image-rendering:pixelated; width:100%; aspect-ratio:1; border-radius:6px; background:
+    conic-gradient(#191d27 90deg,#141821 90deg 180deg,#191d27 180deg 270deg,#141821 270deg) 0 0/14px 14px; }
+  .cell .pname{ font:700 13px/1.25 system-ui,sans-serif; color:#eaf0ff; margin-top:6px; cursor:help; }
+  .cell .pname b{ color:#6fe3b0; font-weight:700; }
+  .cell .stats{ font:10px/1.35 ui-monospace,monospace; color:#b9a8e6; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .cell .affwrap{ margin-top:4px; } .cell .affwrap svg{ display:block; } body.hideaff .affwrap{ display:none; }
+  .cell .soc{ font:10px/1.3 ui-monospace,monospace; margin-top:1px; }
+  .cell .id{ font:10px/1.4 ui-monospace,monospace; color:#8a93a6; margin-top:4px; } .cell .fx{ color:#ffd166; }
+  .cell .say{ font:11px/1.35 system-ui,sans-serif; color:#eaf0ff; background:#1b2334; border:1px solid #2a3550;
+    border-radius:9px; border-bottom-left-radius:3px; padding:5px 8px; margin-top:6px; min-height:15px; text-align:left; }
+  #filters{ padding:8px 22px 10px; border-bottom:1px solid #1c2130; display:flex; flex-direction:column; gap:8px; }
+  .fgroup{ display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; }
+  .ftitle{ align-self:center; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:#6fe3b0; min-width:70px; }
+  .fctl{ display:flex; flex-direction:column; gap:2px; } .fctl label{ font-size:10px; color:#9aa4b2; }
+  .fctl select{ background:#141821; color:#e7e9ee; border:1px solid #2a3142; border-radius:6px; padding:3px 6px; font:12px system-ui; }
+  .fbtn,.pbtn{ background:#1b2130; color:#cdd3e0; border:1px solid #2a3142; border-radius:6px; padding:4px 9px; font:12px system-ui; cursor:pointer; }
+  .fbtn:hover,.pbtn:hover{ background:#232b3d; } .pbtn.on{ background:#5b3fb0; border-color:#5b3fb0; color:#fff; } .pbtn:disabled{ opacity:.4; cursor:default; }
+  .pager{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding:10px 22px; } .pinfo{ color:#8a93a6; font-size:12px; margin-left:8px; }
+</style></head><body>
+<header>
+  <h1>Ciggie-Puffs — $CIGGIE ledger-reactive collection <span class="sub">(AI art · per-token seeded behaviour · every monkey reacts to the ledger)</span></h1>
+  <div class="sub">Move the sliders. Every monkey's eyes GLOW — colour + intensity swing with its seeded ledger signal (teal/green = pumping, red = dumping). Cig smoke, $CIGGIE coin rain, live-ticker + neon-tube + bird + bib necklaces, reactive backgrounds (matrix / rainbow / banana / casino / rocket-launch / moon&rarr;$CIGGIE-coin / parachute-skydive / radix-token-spin), classic / female / albino / gold / zombie base monkeys, and every trait seed + react per token.</div>
+</header>
+<div id="ctrls"></div><div id="filters"></div><div id="pager"></div><div id="grid"></div><div id="pager2"></div>
+<script data-cfasync="false">window.ASSETS={"./fx/_fxmeta.json":"XQAAAAT//////////wA9iIpnFBh+sBn39YCsal3dyzPnze8HjbO7H+YP3B7WdULDWhvjVuN5r7A1sT9e7+ifAZfpecnCFiqVSGwgEuztCMjLJsy5DACdpMP/XqnMss27//+uSgAA","./bg/matrix_alphabet.meta.json":"XQAAAAT//////////wA9iIgng9mnL7jFdempNZ6scg+79tg6GDCiggV2b6jYv2/ajvednXWFqyg0Sp3p3C1gPweZAGG24/Cof1W8q0SlA8ZUMZfQTK2qgHYjW3zVZyCQYmZH7700p0YBlklx3KMNlq/jpLX4Lv/+3GgA"};window.BUNDLE_INDEX={"totalBytes":921435,"chunk":409600,"nChunks":3,"assets":[{"name":"talk/ciggie.loomtalk","offset":0,"len":639855},{"name":"spec/ciggie.spec.json","offset":639855,"len":3108},{"name":"layers/base.loom","offset":642963,"len":7015},{"name":"layers/base_albino.loom","offset":649978,"len":13189},{"name":"layers/base_female.loom","offset":663167,"len":14765},{"name":"layers/base_gold.loom","offset":677932,"len":13498},{"name":"layers/base_zombie.loom","offset":691430,"len":14096},{"name":"layers/bib.loom","offset":705526,"len":2509},{"name":"layers/bird.loom","offset":708035,"len":2415},{"name":"layers/blunt.loom","offset":710450,"len":1503},{"name":"layers/bucket_hat.loom","offset":711953,"len":1788},{"name":"layers/cap.loom","offset":713741,"len":2618},{"name":"layers/cig1.loom","offset":716359,"len":1517},{"name":"layers/cig2.loom","offset":717876,"len":1990},{"name":"layers/cig3.loom","offset":719866,"len":2365},{"name":"layers/cig5.loom","offset":722231,"len":4182},{"name":"layers/cig_bundle.loom","offset":726413,"len":3526},{"name":"layers/cig_giant.loom","offset":729939,"len":1557},{"name":"layers/cig_pack.loom","offset":731496,"len":3712},{"name":"layers/cigar.loom","offset":735208,"len":1744},{"name":"layers/clock.loom","offset":736952,"len":4087},{"name":"layers/crown.loom","offset":741039,"len":3675},{"name":"layers/crown_gems.loom","offset":744714,"len":905},{"name":"layers/crown_silver.loom","offset":745619,"len":3364},{"name":"layers/devil_horns.loom","offset":748983,"len":1413},{"name":"layers/elf_hat.loom","offset":750396,"len":3073},{"name":"layers/eyepatch.loom","offset":753469,"len":920},{"name":"layers/gold_chain.loom","offset":754389,"len":2615},{"name":"layers/gold_chain_x2.loom","offset":757004,"len":3736},{"name":"layers/grillz.loom","offset":760740,"len":1662},{"name":"layers/grillz_chipped.loom","offset":762402,"len":1255},{"name":"layers/grillz_diamond.loom","offset":763657,"len":1418},{"name":"layers/grillz_vampire.loom","offset":765075,"len":1522},{"name":"layers/halo.loom","offset":766597,"len":1642},{"name":"layers/hoodie.loom","offset":768239,"len":4429},{"name":"layers/joint.loom","offset":772668,"len":1670},{"name":"layers/neon_tube.loom","offset":774338,"len":1283},{"name":"layers/officer.loom","offset":775621,"len":6612},{"name":"layers/officer_white.loom","offset":782233,"len":5503},{"name":"layers/otter_tee.loom","offset":787736,"len":4214},{"name":"layers/pipe.loom","offset":791950,"len":1783},{"name":"layers/santa_hat.loom","offset":793733,"len":4130},{"name":"layers/sombrero1.loom","offset":797863,"len":3869},{"name":"layers/sombrero2.loom","offset":801732,"len":3837},{"name":"layers/sombrero3.loom","offset":805569,"len":7651},{"name":"layers/sombrero4.loom","offset":813220,"len":3899},{"name":"layers/ticker.loom","offset":817119,"len":1858},{"name":"layers/tiedye.loom","offset":818977,"len":4807},{"name":"layers/tuxedo.loom","offset":823784,"len":5738},{"name":"layers/white_polo.loom","offset":829522,"len":3756},{"name":"layers/white_tee.loom","offset":833278,"len":3073},{"name":"layers/wifebeater.loom","offset":836351,"len":4560},{"name":"fx/banana.loom","offset":840911,"len":9865},{"name":"fx/coin.loom","offset":850776,"len":7399},{"name":"fx/fireball.loom","offset":858175,"len":9215},{"name":"fx/rocket.loom","offset":867390,"len":5797},{"name":"fx/smoke_puff.loom","offset":873187,"len":9082},{"name":"bg/bg_banana.loom","offset":882269,"len":16857},{"name":"bg/bg_casino.loom","offset":899126,"len":11237},{"name":"bg/bg_launchpad.loom","offset":910363,"len":9446},{"name":"bg/matrix_alphabet.loom","offset":919809,"len":1626}]};window.PREVIEW={"gw":"https://stokenet.radixdlt.com","component":"component_tdx_2_1cr79kf7pycgx8efwjmdw7uc4xxsvqqpx63fcvtp25c2k3yc84sdscs","nft":"resource_tdx_2_1nfm5fsfgpqv3m2n42etwemaef3yuseuqsq9ha5nfzh0rfy2adqwuyv"};</script>
+<script data-cfasync="false">"use strict";
+var LoomCodec = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // src/core/loom/index.ts
+  var index_exports = {};
+  __export(index_exports, {
+    ByteReader: () => ByteReader,
+    ByteWriter: () => ByteWriter,
+    MAGIC: () => MAGIC,
+    bandWithHysteresis: () => bandWithHysteresis,
+    decodeFeather: () => decodeFeather,
+    decodeIndexed: () => decodeIndexed,
+    encodeDocument: () => encodeDocument,
+    encodeFeather: () => encodeFeather,
+    encodeIndexedCellDiff: () => encodeIndexedCellDiff,
+    encodeIndexedPaletteCycle: () => encodeIndexedPaletteCycle,
+    encodeIndexedPan: () => encodeIndexedPan,
+    evaluate: () => evaluate,
+    keyOf: () => keyOf,
+    loomHashHex: () => loomHashHex,
+    plainBand: () => plainBand,
+    renderDocument: () => renderDocument,
+    resolvePalette: () => resolvePalette,
+    rgbaToIndices: () => rgbaToIndices,
+    sha256: () => sha256,
+    sha256hex: () => sha256hex,
+    unzigzag: () => unzigzag,
+    zigzag: () => zigzag
+  });
+
+  // src/core/loom/varint.ts
+  function zigzag(n) {
+    return (n << 1 ^ n >> 31) >>> 0;
+  }
+  function unzigzag(u) {
+    return u >>> 1 ^ -(u & 1);
+  }
+  var ByteWriter = class {
+    buf = [];
+    u8(v) {
+      this.buf.push(v & 255);
+    }
+    bytes(a) {
+      for (const b of a) this.buf.push(b & 255);
+    }
+    varint(v) {
+      if (v < 0 || !Number.isInteger(v)) throw new Error(`varint expects a non-negative integer, got ${v}`);
+      do {
+        const b = v & 127;
+        v = Math.floor(v / 128);
+        this.buf.push(b | (v ? 128 : 0));
+      } while (v);
+    }
+    svarint(v) {
+      this.varint(zigzag(v));
+    }
+    get length() {
+      return this.buf.length;
+    }
+    toBytes() {
+      return Uint8Array.from(this.buf);
+    }
+  };
+  var ByteReader = class {
+    constructor(b, i = 0) {
+      this.b = b;
+      this.i = i;
+    }
+    b;
+    i;
+    get done() {
+      return this.i >= this.b.length;
+    }
+    u8() {
+      if (this.i >= this.b.length) throw new Error("ByteReader: read past end");
+      return this.b[this.i++];
+    }
+    varint() {
+      let shift = 0, val2 = 0, byte;
+      do {
+        if (this.i >= this.b.length) throw new Error("ByteReader: truncated varint");
+        byte = this.b[this.i++];
+        val2 += (byte & 127) * 2 ** shift;
+        shift += 7;
+      } while (byte & 128);
+      return val2;
+    }
+    svarint() {
+      return unzigzag(this.varint());
+    }
+    bytes(n) {
+      if (this.i + n > this.b.length) throw new Error("ByteReader: truncated bytes");
+      const s = this.b.subarray(this.i, this.i + n);
+      this.i += n;
+      return s;
+    }
+  };
+
+  // src/core/loom/sha256.ts
+  var K = new Uint32Array([
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ]);
+  var rotr = (x, n) => x >>> n | x << 32 - n;
+  function sha256(msg) {
+    const H = new Uint32Array([1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225]);
+    const bitLen = msg.length * 8;
+    const withOne = msg.length + 1;
+    const total = withOne + (56 - withOne % 64 + 64) % 64 + 8;
+    const m = new Uint8Array(total);
+    m.set(msg);
+    m[msg.length] = 128;
+    const hi = Math.floor(bitLen / 2 ** 32), lo = bitLen >>> 0;
+    m[total - 8] = hi >>> 24 & 255;
+    m[total - 7] = hi >>> 16 & 255;
+    m[total - 6] = hi >>> 8 & 255;
+    m[total - 5] = hi & 255;
+    m[total - 4] = lo >>> 24 & 255;
+    m[total - 3] = lo >>> 16 & 255;
+    m[total - 2] = lo >>> 8 & 255;
+    m[total - 1] = lo & 255;
+    const w = new Uint32Array(64);
+    for (let off = 0; off < total; off += 64) {
+      for (let t = 0; t < 16; t++) {
+        w[t] = m[off + t * 4] << 24 | m[off + t * 4 + 1] << 16 | m[off + t * 4 + 2] << 8 | m[off + t * 4 + 3];
+      }
+      for (let t = 16; t < 64; t++) {
+        const s0 = rotr(w[t - 15], 7) ^ rotr(w[t - 15], 18) ^ w[t - 15] >>> 3;
+        const s1 = rotr(w[t - 2], 17) ^ rotr(w[t - 2], 19) ^ w[t - 2] >>> 10;
+        w[t] = w[t - 16] + s0 + w[t - 7] + s1 >>> 0;
+      }
+      let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (let t = 0; t < 64; t++) {
+        const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+        const ch = e & f ^ ~e & g;
+        const t1 = h + S1 + ch + K[t] + w[t] >>> 0;
+        const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+        const maj = a & b ^ a & c ^ b & c;
+        const t2 = S0 + maj >>> 0;
+        h = g;
+        g = f;
+        f = e;
+        e = d + t1 >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2 >>> 0;
+      }
+      H[0] = H[0] + a >>> 0;
+      H[1] = H[1] + b >>> 0;
+      H[2] = H[2] + c >>> 0;
+      H[3] = H[3] + d >>> 0;
+      H[4] = H[4] + e >>> 0;
+      H[5] = H[5] + f >>> 0;
+      H[6] = H[6] + g >>> 0;
+      H[7] = H[7] + h >>> 0;
+    }
+    const out = new Uint8Array(32);
+    for (let i = 0; i < 8; i++) {
+      out[i * 4] = H[i] >>> 24 & 255;
+      out[i * 4 + 1] = H[i] >>> 16 & 255;
+      out[i * 4 + 2] = H[i] >>> 8 & 255;
+      out[i * 4 + 3] = H[i] & 255;
+    }
+    return out;
+  }
+  function sha256hex(msg) {
+    return Array.from(sha256(msg), (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  // src/core/loom/feather.ts
+  function toYCoCg(px) {
+    for (let i = 0; i < px.length; i += 4) {
+      const R = px[i], G = px[i + 1], B = px[i + 2];
+      const Co = R - B;
+      const t = B + (Co >> 1);
+      const Cg = G - t;
+      const Y = t + (Cg >> 1);
+      px[i] = Y;
+      px[i + 1] = Co;
+      px[i + 2] = Cg;
+    }
+  }
+  function fromYCoCg(px) {
+    for (let i = 0; i < px.length; i += 4) {
+      const Y = px[i], Co = px[i + 1], Cg = px[i + 2];
+      const t = Y - (Cg >> 1);
+      const G = Cg + t;
+      const B = t - (Co >> 1);
+      const R = B + Co;
+      px[i] = R;
+      px[i + 1] = G;
+      px[i + 2] = B;
+    }
+  }
+  function med(a, b, c) {
+    const mx = a >= b ? a : b, mn = a >= b ? b : a;
+    return c >= mx ? mn : c <= mn ? mx : a + b - c;
+  }
+  function paeth(a, b, c) {
+    const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+    return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+  }
+  function predict(a, b, c, x, y, usePaeth) {
+    if (x === 0 && y === 0) return 0;
+    if (y === 0) return a;
+    if (x === 0) return b;
+    return usePaeth ? paeth(a, b, c) : med(a, b, c);
+  }
+  function encodeIntraPlane(src, w, h, usePaeth, k, out) {
+    const step = 2 * k + 1, rec = new Int32Array(w * h), sub = new ByteWriter();
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const a = x > 0 ? rec[y * w + x - 1] : 0, b = y > 0 ? rec[(y - 1) * w + x] : 0, c = x > 0 && y > 0 ? rec[(y - 1) * w + x - 1] : 0;
+      const pred = predict(a, b, c, x, y, usePaeth);
+      const r = src[y * w + x] - pred;
+      const q = k === 0 ? r : Math.round(r / step);
+      rec[y * w + x] = pred + q * step;
+      sub.svarint(q);
+    }
+    const blob = sub.toBytes();
+    out.varint(blob.length);
+    out.bytes(blob);
+    return rec;
+  }
+  function decodeIntraPlane(rd, w, h, usePaeth, k) {
+    const step = 2 * k + 1, blen = rd.varint(), sub = new ByteReader(rd.bytes(blen)), rec = new Int32Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const a = x > 0 ? rec[y * w + x - 1] : 0, b = y > 0 ? rec[(y - 1) * w + x] : 0, c = x > 0 && y > 0 ? rec[(y - 1) * w + x - 1] : 0;
+      const pred = predict(a, b, c, x, y, usePaeth);
+      rec[y * w + x] = pred + sub.svarint() * step;
+    }
+    return rec;
+  }
+  function boxDown(px, w, h, s) {
+    const dw = w / s, dh = h / s, d = new Int32Array(dw * dh * 4), half = s * s >> 1;
+    for (let y = 0; y < dh; y++) for (let x = 0; x < dw; x++) for (let ch = 0; ch < 4; ch++) {
+      let sum = 0;
+      for (let yy = 0; yy < s; yy++) for (let xx = 0; xx < s; xx++) sum += px[((y * s + yy) * w + (x * s + xx)) * 4 + ch];
+      d[(y * dw + x) * 4 + ch] = Math.floor((sum + half) / (s * s));
+    }
+    return { d, w: dw, h: dh };
+  }
+  function nnUp(px, w, h, s) {
+    const uw = w * s, uh = h * s, u = new Int32Array(uw * uh * 4);
+    for (let y = 0; y < uh; y++) for (let x = 0; x < uw; x++) for (let ch = 0; ch < 4; ch++)
+      u[(y * uw + x) * 4 + ch] = px[(Math.floor(y / s) * w + Math.floor(x / s)) * 4 + ch];
+    return u;
+  }
+  var clamp = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
+  function encodeFeather(frames, w, h, opts = {}) {
+    const usePaeth = opts.predictor === "paeth", ycocg = opts.colorspace === "ycocg";
+    const k = opts.k ?? 0, scale = opts.scale ?? 1, temporal = opts.temporal ?? frames.length > 1;
+    if (k > 0 && ycocg) throw new Error("near-lossless requires colorspace=rgb (docs \xA75)");
+    if (scale !== 1 && (w % scale || h % scale)) throw new Error("feather scale must divide layer dims");
+    const intraK = temporal ? 0 : k;
+    const out = new ByteWriter();
+    out.u8(0);
+    out.u8((ycocg ? 1 : 0) | (usePaeth ? 2 : 0) | (temporal ? 4 : 0));
+    out.u8(k);
+    out.u8(scale);
+    const sw = w / scale, sh = h / scale;
+    const small = frames.map((f) => {
+      const p = Int32Array.from(f);
+      const { d } = scale === 1 ? { d: p } : boxDown(p, w, h, scale);
+      if (ycocg) toYCoCg(d);
+      return d;
+    });
+    out.varint(sw);
+    out.varint(sh);
+    out.varint(4);
+    out.varint(frames.length);
+    const planeOf = (px, ch) => {
+      const o = new Int32Array(sw * sh);
+      for (let i = 0; i < sw * sh; i++) o[i] = px[i * 4 + ch];
+      return o;
+    };
+    const recPrev = [];
+    for (let ch = 0; ch < 4; ch++) recPrev.push(encodeIntraPlane(planeOf(small[0], ch), sw, sh, usePaeth, intraK, out));
+    const step = 2 * k + 1;
+    for (let fi = 1; fi < frames.length; fi++) {
+      for (let ch = 0; ch < 4; ch++) {
+        const cur = planeOf(small[fi], ch), rp = recPrev[ch], sub = new ByteWriter();
+        for (let i = 0; i < sw * sh; i++) {
+          const delta = cur[i] - rp[i];
+          const q = k === 0 ? delta : Math.round(delta / step);
+          rp[i] = rp[i] + q * step;
+          sub.svarint(q);
+        }
+        const blob = sub.toBytes();
+        out.varint(blob.length);
+        out.bytes(blob);
+      }
+    }
+    return out.toBytes();
+  }
+  function decodeFeather(rd, canvasW, canvasH) {
+    rd.u8();
+    const flags = rd.u8(), k = rd.u8(), scale = rd.u8();
+    const ycocg = (flags & 1) !== 0, usePaeth = (flags & 2) !== 0, temporal = (flags & 4) !== 0;
+    const intraK = temporal ? 0 : k;
+    const sw = rd.varint(), sh = rd.varint(), nch = rd.varint(), nf = rd.varint();
+    if (nch !== 4) throw new Error("feather v0 expects 4 channels");
+    const step = 2 * k + 1;
+    const rec = [];
+    for (let ch = 0; ch < 4; ch++) rec.push(decodeIntraPlane(rd, sw, sh, usePaeth, intraK));
+    const frames = [];
+    const emit = () => {
+      const px = new Int32Array(sw * sh * 4);
+      for (let ch = 0; ch < 4; ch++) for (let i = 0; i < sw * sh; i++) px[i * 4 + ch] = rec[ch][i];
+      if (ycocg) fromYCoCg(px);
+      const up = scale === 1 ? px : nnUp(px, sw, sh, scale);
+      const uw = sw * scale, uh = sh * scale, out = new Uint8Array(canvasW * canvasH * 4);
+      for (let y = 0; y < Math.min(uh, canvasH); y++) for (let x = 0; x < Math.min(uw, canvasW); x++)
+        for (let ch = 0; ch < 4; ch++) out[(y * canvasW + x) * 4 + ch] = clamp(up[(y * uw + x) * 4 + ch]);
+      frames.push(out);
+    };
+    emit();
+    for (let fi = 1; fi < nf; fi++) {
+      for (let ch = 0; ch < 4; ch++) {
+        const blen = rd.varint(), sub = new ByteReader(rd.bytes(blen)), rp = rec[ch];
+        for (let i = 0; i < sw * sh; i++) rp[i] = rp[i] + sub.svarint() * step;
+      }
+      emit();
+    }
+    return frames;
+  }
+
+  // src/core/loom/indexed.ts
+  function rleEncode(idx, out) {
+    let i = 0;
+    while (i < idx.length) {
+      const v = idx[i];
+      let run = 1;
+      while (i + run < idx.length && idx[i + run] === v) run++;
+      out.varint(run);
+      out.u8(v);
+      i += run;
+    }
+  }
+  function rleDecode(rd, n) {
+    const idx = new Uint8Array(n);
+    let i = 0;
+    while (i < n) {
+      const run = rd.varint(), v = rd.u8();
+      idx.fill(v, i, i + run);
+      i += run;
+    }
+    return idx;
+  }
+  function encodeIndexedCellDiff(frames, palette, w, h, ticks) {
+    const pc = palette.length / 4;
+    if (pc > 256) throw new Error("indexed palette > 256");
+    if (w > 256 || h > 256) throw new Error("indexed layer > 256x256");
+    const out = new ByteWriter();
+    out.varint(pc);
+    out.bytes(palette);
+    out.varint(w);
+    out.varint(h);
+    out.varint(frames.length);
+    out.u8(0);
+    rleEncode(frames[0], out);
+    let prev = frames[0];
+    for (let f = 0; f < frames.length; f++) {
+      out.varint(ticks?.[f] ?? 4);
+      out.u8(0);
+      const cur = frames[f];
+      if (f === 0) {
+        out.varint(0);
+        continue;
+      }
+      const segs = [];
+      let i = 0;
+      while (i < cur.length) {
+        if (cur[i] !== prev[i]) {
+          const start = i;
+          const bytes = [];
+          while (i < cur.length && cur[i] !== prev[i]) {
+            bytes.push(cur[i]);
+            i++;
+          }
+          segs.push({ off: start, bytes });
+        } else i++;
+      }
+      out.varint(segs.length);
+      let last = 0;
+      for (const s of segs) {
+        out.varint(s.off - last);
+        out.varint(s.bytes.length);
+        out.bytes(s.bytes);
+        last = s.off + s.bytes.length;
+      }
+      prev = cur;
+    }
+    return out.toBytes();
+  }
+  function encodeIndexedPaletteCycle(keyframe, palette, w, h, frames) {
+    const pc = palette.length / 4;
+    const out = new ByteWriter();
+    out.varint(pc);
+    out.bytes(palette);
+    out.varint(w);
+    out.varint(h);
+    out.varint(frames.length);
+    out.u8(0);
+    rleEncode(keyframe, out);
+    for (const fr of frames) {
+      out.varint(fr.tick);
+      out.u8(1);
+      out.u8(fr.lo & 255);
+      out.u8(fr.hi & 255);
+      out.svarint(fr.rot);
+    }
+    return out.toBytes();
+  }
+  function encodeIndexedPan(tiles, tilemap, tileDim, mapWTiles, mapHTiles, palette, viewportW, viewportH, frames) {
+    const pc = palette.length / 4;
+    if (viewportW > 256 || viewportH > 256) throw new Error("indexed layer > 256x256");
+    if (tilemap.length !== mapWTiles * mapHTiles) throw new Error("tilemap size mismatch");
+    const out = new ByteWriter();
+    out.varint(pc);
+    out.bytes(palette);
+    out.varint(viewportW);
+    out.varint(viewportH);
+    out.varint(frames.length);
+    out.u8(1);
+    out.varint(tileDim);
+    out.varint(mapWTiles);
+    out.varint(mapHTiles);
+    out.varint(tiles.length);
+    for (const t of tiles) {
+      if (t.length !== tileDim * tileDim) throw new Error("tile size mismatch");
+      out.bytes(t);
+    }
+    for (const id of tilemap) out.varint(id);
+    for (const fr of frames) {
+      const combo = fr.lo !== void 0;
+      out.varint(fr.tick);
+      out.u8(combo ? 3 : 2);
+      out.svarint(fr.ox);
+      out.svarint(fr.oy);
+      if (combo) {
+        out.u8((fr.lo ?? 0) & 255);
+        out.u8((fr.hi ?? 0) & 255);
+        out.svarint(fr.rot ?? 0);
+      }
+    }
+    return out.toBytes();
+  }
+  function applyPalette(idx, pal, canvasW, canvasH, w, h) {
+    const out = new Uint8Array(canvasW * canvasH * 4);
+    for (let y = 0; y < Math.min(h, canvasH); y++) for (let x = 0; x < Math.min(w, canvasW); x++) {
+      const ix = idx[y * w + x], o = (y * canvasW + x) * 4;
+      if (ix === 0) {
+        out[o + 3] = 0;
+        continue;
+      }
+      out[o] = pal[ix * 4];
+      out[o + 1] = pal[ix * 4 + 1];
+      out[o + 2] = pal[ix * 4 + 2];
+      out[o + 3] = pal[ix * 4 + 3];
+    }
+    return out;
+  }
+  function cyclePalette(pal, lo, hi, rot) {
+    const span = hi - lo + 1;
+    if (span <= 0) return;
+    const snap = pal.slice(lo * 4, (hi + 1) * 4);
+    for (let e = 0; e < span; e++) {
+      const src = ((e - rot) % span + span) % span;
+      pal.set(snap.subarray(src * 4, src * 4 + 4), (lo + e) * 4);
+    }
+  }
+  function decodeIndexed(rd, canvasW, canvasH) {
+    const pc = rd.varint();
+    const basePal = rd.bytes(pc * 4);
+    const w = rd.varint(), h = rd.varint(), nf = rd.varint();
+    const hasTileset = rd.u8();
+    const pal = Uint8Array.from(basePal);
+    const frames = [];
+    if (!hasTileset) {
+      const idx = rleDecode(rd, w * h);
+      for (let f = 0; f < nf; f++) {
+        rd.varint();
+        const op = rd.u8();
+        if (op === 0) {
+          const nseg = rd.varint();
+          let cursor = 0;
+          for (let s = 0; s < nseg; s++) {
+            const delta = rd.varint(), len = rd.varint();
+            cursor += delta;
+            for (let j = 0; j < len; j++) idx[cursor + j] = rd.u8();
+            cursor += len;
+          }
+        } else if (op === 1) {
+          cyclePalette(pal, rd.u8(), rd.u8(), rd.svarint());
+        } else throw new Error(`indexed op ${op} requires a tileset`);
+        frames.push(applyPalette(idx, pal, canvasW, canvasH, w, h));
+      }
+      return frames;
+    }
+    const tileDim = rd.varint(), mapW = rd.varint(), mapH = rd.varint(), nTiles = rd.varint();
+    const tiles = [];
+    for (let t = 0; t < nTiles; t++) tiles.push(Uint8Array.from(rd.bytes(tileDim * tileDim)));
+    const tilemap = [];
+    for (let i = 0; i < mapW * mapH; i++) tilemap.push(rd.varint());
+    const mapPxW = mapW * tileDim, mapPxH = mapH * tileDim;
+    for (let f = 0; f < nf; f++) {
+      rd.varint();
+      const op = rd.u8();
+      const ox = rd.svarint(), oy = rd.svarint();
+      if (op === 3) cyclePalette(pal, rd.u8(), rd.u8(), rd.svarint());
+      else if (op !== 2) throw new Error(`indexed tileset op ${op} invalid`);
+      const idx = new Uint8Array(w * h);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const sx = ((x + ox) % mapPxW + mapPxW) % mapPxW, sy = ((y + oy) % mapPxH + mapPxH) % mapPxH;
+        const tile = tiles[tilemap[(sy / tileDim | 0) * mapW + (sx / tileDim | 0)]];
+        idx[y * w + x] = tile[sy % tileDim * tileDim + sx % tileDim];
+      }
+      frames.push(applyPalette(idx, pal, canvasW, canvasH, w, h));
+    }
+    return frames;
+  }
+  function rgbaToIndices(frame, palette, w, h) {
+    const pc = palette.length / 4, idx = new Uint8Array(w * h);
+    for (let p = 0; p < w * h; p++) {
+      if (frame[p * 4 + 3] === 0) {
+        idx[p] = 0;
+        continue;
+      }
+      const r = frame[p * 4], g = frame[p * 4 + 1], b = frame[p * 4 + 2];
+      let best = 1, bd = Infinity;
+      for (let c = 1; c < pc; c++) {
+        const dr = r - palette[c * 4], dg = g - palette[c * 4 + 1], db = b - palette[c * 4 + 2];
+        const d = dr * dr + dg * dg + db * db;
+        if (d < bd) {
+          bd = d;
+          best = c;
+        }
+      }
+      idx[p] = best;
+    }
+    return idx;
+  }
+
+  // src/core/loom/document.ts
+  var MAGIC = Uint8Array.from([76, 79, 79, 77]);
+  var BLEND_ID = { normal: 0, multiply: 1, replace: 2 };
+  var BLEND_NAME = ["normal", "multiply", "replace"];
+  var CAPS = { canvas: 1024, frames: 256, layers: 32 };
+  function encodeDocument(doc) {
+    if (doc.canvasW > CAPS.canvas || doc.canvasH > CAPS.canvas) throw new Error("canvas > 1024");
+    if (doc.nFrames > CAPS.frames) throw new Error("n_frames > 256");
+    if (doc.layers.length > CAPS.layers) throw new Error("n_layers > 32");
+    const out = new ByteWriter();
+    out.bytes(MAGIC);
+    out.u8(0);
+    out.u8(doc.includeHash ? 1 : 0);
+    out.varint(doc.canvasW);
+    out.varint(doc.canvasH);
+    out.varint(doc.nFrames);
+    out.varint(doc.layers.length);
+    for (const L of doc.layers) {
+      const mode = L.mode === "feather" ? 1 : 0;
+      const flags = mode | (L.visible === false ? 0 : 1) << 2 | BLEND_ID[L.blend ?? "normal"] << 3;
+      out.u8(flags);
+      out.varint(L.body.length);
+      out.bytes(L.body);
+    }
+    if (doc.includeHash) {
+      const { hash } = renderDocument(out.toBytes());
+      out.bytes(hash);
+    }
+    return out.toBytes();
+  }
+  function renderDocument(bytes) {
+    const rd = new ByteReader(bytes);
+    for (let i = 0; i < 4; i++) if (rd.u8() !== MAGIC[i]) throw new Error("bad magic");
+    const version = rd.u8();
+    if (version !== 0) throw new Error(`unsupported loom version ${version}`);
+    const docFlags = rd.u8();
+    const canvasW = rd.varint(), canvasH = rd.varint(), nFrames = rd.varint(), nLayers = rd.varint();
+    const composited = Array.from({ length: nFrames }, () => new Uint8Array(canvasW * canvasH * 4));
+    for (let li = 0; li < nLayers; li++) {
+      const flags = rd.u8(), bodyLen = rd.varint(), body = rd.bytes(bodyLen);
+      const mode = flags & 3, visible = flags >> 2 & 1, blend = BLEND_NAME[flags >> 3 & 3] ?? "normal";
+      const sub = new ByteReader(body);
+      const layerFrames = mode === 1 ? decodeFeather(sub, canvasW, canvasH) : decodeIndexed(sub, canvasW, canvasH);
+      if (!visible) continue;
+      for (let f = 0; f < nFrames; f++) over(composited[f], layerFrames[f % layerFrames.length], blend);
+    }
+    const cat = new Uint8Array(nFrames * canvasW * canvasH * 4);
+    for (let f = 0; f < nFrames; f++) cat.set(composited[f], f * canvasW * canvasH * 4);
+    const hash = sha256(cat), hashHex = sha256hex(cat);
+    const res = { canvasW, canvasH, nFrames, frames: composited, hash, hashHex };
+    if (docFlags & 1) {
+      const stored = bytes.subarray(bytes.length - 32);
+      res.storedHash = Array.from(stored, (b) => b.toString(16).padStart(2, "0")).join("");
+      res.hashOk = res.storedHash === hashHex;
+    }
+    return res;
+  }
+  function over(dst, src, blend) {
+    for (let i = 0; i < dst.length; i += 4) {
+      const sa = src[i + 3];
+      if (sa === 0) continue;
+      if (blend === "replace" || sa === 255 && blend === "normal") {
+        dst[i] = src[i];
+        dst[i + 1] = src[i + 1];
+        dst[i + 2] = src[i + 2];
+        dst[i + 3] = sa;
+        continue;
+      }
+      const da = dst[i + 3];
+      const iaa = Math.floor((da * (255 - sa) + 127) / 255);
+      const outA = sa + iaa;
+      for (let c = 0; c < 3; c++) {
+        const d = dst[i + c];
+        const s = blend === "multiply" ? Math.floor((src[i + c] * d + 127) / 255) : src[i + c];
+        dst[i + c] = outA === 0 ? 0 : Math.floor((s * sa + d * iaa + (outA >> 1)) / outA);
+      }
+      dst[i + 3] = outA;
+    }
+  }
+  function loomHashHex(bytes) {
+    return renderDocument(bytes).hashHex;
+  }
+
+  // src/core/loom/collection.ts
+  var HUE_STEPS = 16;
+  var COS = Array.from({ length: HUE_STEPS }, (_, i) => Math.round(Math.cos(i * 2 * Math.PI / HUE_STEPS) * 256));
+  var SIN = Array.from({ length: HUE_STEPS }, (_, i) => Math.round(Math.sin(i * 2 * Math.PI / HUE_STEPS) * 256));
+  var clamp2 = (v) => v < 0 ? 0 : v > 255 ? 255 : v;
+  function recolor(pal, op, steps, delta) {
+    const out = Uint8Array.from(pal), c = COS[(steps % HUE_STEPS + HUE_STEPS) % HUE_STEPS], s = SIN[(steps % HUE_STEPS + HUE_STEPS) % HUE_STEPS];
+    for (let i = 0; i < pal.length; i += 4) {
+      if (pal[i + 3] === 0) continue;
+      const R = pal[i], G = pal[i + 1], B = pal[i + 2];
+      const Co = R - B, t = B + (Co >> 1), Cg = G - t, Y = t + (Cg >> 1);
+      let Y2 = Y, Co2 = Co, Cg2 = Cg;
+      if (op === "hue") {
+        Co2 = Co * c - Cg * s >> 8;
+        Cg2 = Co * s + Cg * c >> 8;
+      } else Y2 = Y + delta;
+      const t2 = Y2 - (Cg2 >> 1), G2 = Cg2 + t2, B2 = t2 - (Co2 >> 1), R2 = B2 + Co2;
+      out[i] = clamp2(R2);
+      out[i + 1] = clamp2(G2);
+      out[i + 2] = clamp2(B2);
+      out[i + 3] = pal[i + 3];
+    }
+    return out;
+  }
+  function resolvePalette(graph, name, seen = /* @__PURE__ */ new Set()) {
+    if (seen.has(name)) throw new Error(`palette-graph cycle at "${name}"`);
+    const node = graph[name];
+    if (!node) throw new Error(`palette node "${name}" not found`);
+    seen.add(name);
+    if (node.kind === "abs") {
+      const pal = new Uint8Array(node.entries.length * 4);
+      node.entries.forEach((e, i) => pal.set(e, i * 4));
+      return pal;
+    }
+    const parent = resolvePalette(graph, node.parent, seen);
+    if (node.kind === "inherit") {
+      const pal = Uint8Array.from(parent);
+      for (const [ix, rgba] of Object.entries(node.patch ?? {})) pal.set(rgba, Number(ix) * 4);
+      return pal;
+    }
+    return recolor(parent, node.op, node.steps ?? 0, node.delta ?? 0);
+  }
+
+  // src/core/loom/conditional.ts
+  function keyOf(c) {
+    if (c.arg === void 0) return c.input;
+    const a = c.arg;
+    if ("token_id" in a) return `${c.input}:token:${String(a["token_id"])}`;
+    if ("trait" in a) return `${c.input}:trait:${String(a["trait"])}`;
+    return `${c.input}:${JSON.stringify(a)}`;
+  }
+  var val = (inputs, key) => inputs.now[key] ?? 0;
+  function compare(a, op, b) {
+    switch (op) {
+      case "==":
+        return a === b;
+      case "!=":
+        return a !== b;
+      case "<":
+        return a < b;
+      case "<=":
+        return a <= b;
+      case ">":
+        return a > b;
+      case ">=":
+        return a >= b;
+    }
+  }
+  function plainBand(value, edges) {
+    let i = 0;
+    while (i < edges.length && value >= edges[i]) i++;
+    return Math.max(0, Math.min(i - 1, edges.length - 1));
+  }
+  function bandWithHysteresis(value, prev, edges, margin) {
+    if (margin > 0 && prev !== void 0) {
+      const nearEdge = edges.some((e) => Math.abs(value - e) < margin);
+      if (nearEdge) return plainBand(prev, edges);
+    }
+    return plainBand(value, edges);
+  }
+  function evalCond(c, inputs) {
+    if ("all" in c && c.all) return { fired: c.all.every((s) => evalCond(s, inputs).fired) };
+    if ("any" in c && c.any) return { fired: c.any.some((s) => evalCond(s, inputs).fired) };
+    if ("not" in c && c.not) return { fired: !evalCond(c.not, inputs).fired };
+    if ("band" in c) {
+      const bc = c, key = keyOf(bc);
+      return { fired: true, band: bandWithHysteresis(val(inputs, key), inputs.prev?.[key], bc.band, bc.margin ?? 0) };
+    }
+    if ("in" in c) {
+      const sc = c;
+      return { fired: sc.in.includes(val(inputs, keyOf(sc))) };
+    }
+    const cc = c;
+    return { fired: compare(val(inputs, keyOf(cc)), cc.op, cc.value) };
+  }
+  function resolveEffect(eff, band) {
+    if (eff.if_band !== void 0 && eff.if_band !== band) return null;
+    const out = { layer: eff.layer, effect: eff.effect };
+    if (eff.by_band) {
+      if (band === void 0 || band >= eff.by_band.length) return null;
+      out.to = eff.by_band[band];
+    } else if (eff.to !== void 0) out.to = eff.to;
+    else if (eff.mul !== void 0) out.mul = eff.mul;
+    else if (eff.cycle_mul !== void 0) out.cycle_mul = eff.cycle_mul;
+    return out;
+  }
+  function evaluate(spec, _tokenId, inputs) {
+    const byTarget = /* @__PURE__ */ new Map();
+    for (const rule of spec.rules ?? []) {
+      const r = evalCond(rule.when, inputs);
+      if (!r.fired) continue;
+      for (const eff of rule.then) {
+        const res = resolveEffect(eff, r.band);
+        if (res) byTarget.set(`${res.layer}:${res.effect}`, res);
+      }
+    }
+    return [...byTarget.values()];
+  }
+  return __toCommonJS(index_exports);
+})();
+</script>
+<script data-cfasync="false">"use strict";
+var Recipe = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // engine/resolve.mjs
+  var resolve_exports = {};
+  __export(resolve_exports, {
+    evaluate: () => evaluate,
+    h32: () => h32,
+    resolve: () => resolve,
+    weightedPick: () => weightedPick
+  });
+  function h32(s) {
+    let h = 2166136261;
+    s = "" + s;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function weightedPick(prefix, seed, group, options) {
+    const total = options.reduce((a, x) => a + x[1], 0);
+    let r = h32(prefix + ":" + seed + ":" + group) % total;
+    for (const [name, w] of options) {
+      if (r < w) return name;
+      r -= w;
+    }
+    return options[options.length - 1][0];
+  }
+  function resolve(spec, seed) {
+    const P = spec.seedPrefix, pick = (g, o) => weightedPick(P, seed, g, o);
+    const traits = {};
+    for (const [slot, opts] of Object.entries(spec.slots)) {
+      const v = pick(slot, opts);
+      const boolTrue = spec.boolSlots && spec.boolSlots[slot];
+      traits[slot] = boolTrue !== void 0 ? v === boolTrue : v;
+    }
+    const fx = {};
+    for (const [name, def] of Object.entries(spec.fx || {})) {
+      fx[name] = {
+        input: pick(name + "_in", spec.inputPools[def.pool]),
+        dir: pick(name + "_dir", spec.fxShared.dir),
+        window: pick(name + "_win", spec.fxShared.window),
+        sens: pick(name + "_sens", spec.fxShared.sens),
+        signal: def.signal
+      };
+    }
+    const recolor = {};
+    for (const rc of spec.recolor || []) {
+      if (traits[rc.slot] === rc.when) recolor[rc.slot] = { op: rc.op, steps: h32(rc.seedKey + seed) % rc.mod };
+    }
+    return { seed, traits, recolor, fx };
+  }
+  var clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  function evaluate(spec, fxBinding, inputs) {
+    const raw = inputs[fxBinding.input], ic = spec.inputs[fxBinding.input];
+    if (fxBinding.signal === "senti") {
+      const s2 = ic.kind === "signed" ? raw / ic.scale : raw / ic.scale * 2 - 1;
+      return clamp(fxBinding.dir === "down" ? -s2 : s2, -1, 1);
+    }
+    let n;
+    if (ic.kind === "signed") {
+      const s2 = raw / ic.scale;
+      n = fxBinding.dir === "up" ? Math.max(0, s2) : fxBinding.dir === "down" ? Math.max(0, -s2) : Math.abs(s2);
+    } else {
+      const x = raw / ic.scale;
+      n = fxBinding.dir === "down" ? 1 - x : x;
+    }
+    const [o, s] = spec.sens[fxBinding.sens];
+    return clamp((n - o) / (s - o), 0, 1);
+  }
+  return __toCommonJS(resolve_exports);
+})();
+</script>
+<script data-cfasync="false">"use strict";
+var LZMA = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // dashboard/lzma.mjs
+  var lzma_exports = {};
+  __export(lzma_exports, {
+    decompressLZMA: () => decompressLZMA
+  });
+  var kTop = 1 << 24;
+  var kNumBitModelTotalBits = 11;
+  var kBitModelTotal = 1 << 11;
+  var kNumMoveBits = 5;
+  function decompressLZMA(input) {
+    const inp = input instanceof Uint8Array ? input : new Uint8Array(input);
+    let props = inp[0];
+    const lc = props % 9;
+    props = props / 9 | 0;
+    const lp = props % 5, pb = props / 5 | 0;
+    let unknown = true;
+    for (let i = 0; i < 8; i++) if (inp[5 + i] !== 255) unknown = false;
+    let outSize = 0;
+    if (!unknown) for (let i = 0; i < 8; i++) outSize += inp[5 + i] * Math.pow(2, 8 * i);
+    let out = new Uint8Array(unknown ? Math.max(1 << 16, inp.length * 6) : outSize);
+    let outPos = 0;
+    const ensure = (n) => {
+      if (outPos + n > out.length) {
+        const bigger = new Uint8Array(Math.max(out.length * 2, outPos + n));
+        bigger.set(out);
+        out = bigger;
+      }
+    };
+    let pos = 13;
+    let code = 0, range = 4294967295;
+    pos++;
+    for (let i = 0; i < 4; i++) code = (code << 8 | inp[pos++]) >>> 0;
+    const normalize = () => {
+      if (range < kTop) {
+        range = range << 8 >>> 0;
+        code = (code << 8 | (inp[pos++] | 0)) >>> 0;
+      }
+    };
+    const decodeBit = (probs, i) => {
+      const bound = (range >>> kNumBitModelTotalBits) * probs[i];
+      let bit;
+      if (code >>> 0 < bound) {
+        range = bound;
+        probs[i] += kBitModelTotal - probs[i] >>> kNumMoveBits;
+        bit = 0;
+      } else {
+        range = range - bound >>> 0;
+        code = code - bound >>> 0;
+        probs[i] -= probs[i] >>> kNumMoveBits;
+        bit = 1;
+      }
+      normalize();
+      return bit;
+    };
+    const decodeDirect = (numBits) => {
+      let res = 0;
+      do {
+        range = range >>> 1;
+        code = code - range >>> 0;
+        const t = 0 - (code >>> 31);
+        code = code + (range & t) >>> 0;
+        normalize();
+        res = (res << 1) + (t + 1) >>> 0;
+      } while (--numBits);
+      return res >>> 0;
+    };
+    const bitTree = (probs, off, numBits) => {
+      let m = 1;
+      for (let i = 0; i < numBits; i++) m = (m << 1) + decodeBit(probs, off + m);
+      return m - (1 << numBits);
+    };
+    const bitTreeRev = (probs, off, numBits) => {
+      let m = 1, sym = 0;
+      for (let i = 0; i < numBits; i++) {
+        const b = decodeBit(probs, off + m);
+        m = (m << 1) + b;
+        sym |= b << i;
+      }
+      return sym;
+    };
+    const mk = (n) => {
+      const a = new Uint16Array(n);
+      a.fill(kBitModelTotal >> 1);
+      return a;
+    };
+    const NUM_STATES = 12;
+    const IsMatch = mk(NUM_STATES << 4), IsRep = mk(NUM_STATES), IsRepG0 = mk(NUM_STATES), IsRepG1 = mk(NUM_STATES), IsRepG2 = mk(NUM_STATES), IsRep0Long = mk(NUM_STATES << 4);
+    const PosSlot = mk(4 << 6), SpecPos = mk(115), Align = mk(16);
+    const litProbs = mk(768 << lc + lp);
+    const mkLen = () => ({ choice: mk(2), low: mk(16 << 3), mid: mk(16 << 3), high: mk(256) });
+    const lenDec = mkLen(), repLenDec = mkLen();
+    const decodeLen = (L, posState) => {
+      if (decodeBit(L.choice, 0) === 0) return bitTree(L.low, posState << 3, 3);
+      if (decodeBit(L.choice, 1) === 0) return 8 + bitTree(L.mid, posState << 3, 3);
+      return 16 + bitTree(L.high, 0, 8);
+    };
+    let state = 0, rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0;
+    const pbMask = (1 << pb) - 1, lpMask = (1 << lp) - 1;
+    while (true) {
+      if (!unknown && outPos >= outSize) break;
+      if (pos > inp.length + 16) break;
+      const posState = outPos & pbMask;
+      if (decodeBit(IsMatch, (state << 4) + posState) === 0) {
+        const prevByte = outPos > 0 ? out[outPos - 1] : 0;
+        const litState = ((outPos & lpMask) << lc) + (prevByte >>> 8 - lc);
+        const off = 768 * litState;
+        let sym = 1;
+        if (state >= 7) {
+          let matchByte = out[outPos - rep0 - 1];
+          do {
+            const matchBit = matchByte >>> 7 & 1;
+            matchByte = matchByte << 1 & 255;
+            const bit = decodeBit(litProbs, off + (1 + matchBit << 8) + sym);
+            sym = sym << 1 | bit;
+            if (matchBit !== bit) {
+              while (sym < 256) sym = sym << 1 | decodeBit(litProbs, off + sym);
+              break;
+            }
+          } while (sym < 256);
+        } else {
+          while (sym < 256) sym = sym << 1 | decodeBit(litProbs, off + sym);
+        }
+        ensure(1);
+        out[outPos++] = sym & 255;
+        state = state < 4 ? 0 : state < 10 ? state - 3 : state - 6;
+        continue;
+      }
+      let len;
+      if (decodeBit(IsRep, state) === 1) {
+        if (decodeBit(IsRepG0, state) === 0) {
+          if (decodeBit(IsRep0Long, (state << 4) + posState) === 0) {
+            state = state < 7 ? 9 : 11;
+            ensure(1);
+            out[outPos] = out[outPos - rep0 - 1];
+            outPos++;
+            continue;
+          }
+        } else {
+          let dist;
+          if (decodeBit(IsRepG1, state) === 0) dist = rep1;
+          else {
+            if (decodeBit(IsRepG2, state) === 0) dist = rep2;
+            else {
+              dist = rep3;
+              rep3 = rep2;
+            }
+            rep2 = rep1;
+          }
+          rep1 = rep0;
+          rep0 = dist;
+        }
+        len = decodeLen(repLenDec, posState) + 2;
+        state = state < 7 ? 8 : 11;
+      } else {
+        rep3 = rep2;
+        rep2 = rep1;
+        rep1 = rep0;
+        len = decodeLen(lenDec, posState);
+        state = state < 7 ? 7 : 10;
+        const lenState = len < 4 ? len : 3;
+        const posSlot = bitTree(PosSlot, lenState << 6, 6);
+        if (posSlot < 4) rep0 = posSlot;
+        else {
+          const numDirect = (posSlot >>> 1) - 1;
+          rep0 = (2 | posSlot & 1) << numDirect;
+          if (posSlot < 14) rep0 += bitTreeRev(SpecPos, rep0 - posSlot - 1, numDirect);
+          else {
+            rep0 = rep0 + (decodeDirect(numDirect - 4) << 4) >>> 0;
+            rep0 += bitTreeRev(Align, 0, 4);
+          }
+        }
+        if (rep0 === 4294967295) break;
+        len += 2;
+      }
+      ensure(len);
+      for (let i = 0; i < len; i++) {
+        out[outPos] = out[outPos - rep0 - 1];
+        outPos++;
+      }
+    }
+    return out.subarray(0, outPos);
+  }
+  return __toCommonJS(lzma_exports);
+})();
+</script>
+<script data-cfasync="false">(async function(){try{
+
+  (function(){var s=document.createElement('div');s.id='loadmsg';s.style.cssText='position:fixed;top:0;left:0;right:0;padding:8px;background:#161a24;color:#6fe3b0;font:13px monospace;z-index:9999;text-align:center';s.textContent='reading the Ciggie Puffs collection from the Radix ledger…';document.body.appendChild(s);})();
+  await (async function(){
+    var P=window.PREVIEW, A=window.ASSETS, IDX=window.BUNDLE_INDEX;
+    var post=function(p,b){return fetch(P.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});};
+    var d=await post('/state/entity/details',{addresses:[P.component]});
+    var f=d.items[0].details.state.fields;
+    var kvs=f.find(function(x){return x.field_name==='bundle';}).value;
+    window.__N=Number((f.find(function(x){return x.field_name==='minted';})||{}).value)||480;
+    var ks=await post('/state/key-value-store/keys',{key_value_store_address:kvs});
+    var keys=ks.items.map(function(it){return {key_json:it.key.programmatic_json};});
+    var dd=await post('/state/key-value-store/data',{key_value_store_address:kvs,keys:keys});
+    var chunks=dd.entries.map(function(e){return {i:Number(e.key.programmatic_json.value),hex:e.value.programmatic_json.hex};}).sort(function(a,b){return a.i-b.i;});
+    var total=0; chunks.forEach(function(c){total+=c.hex.length/2;});
+    var blob=new Uint8Array(total), o=0;
+    chunks.forEach(function(c){var h=c.hex; for(var i=0;i<h.length;i+=2){blob[o++]=parseInt(h.substr(i,2),16);}});
+    function b64(u8){var s='';for(var i=0;i<u8.length;i+=0x8000){s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));}return btoa(s);}
+    IDX.assets.forEach(function(a){var key=a.name==='spec/ciggie.spec.json'?'./ciggie.spec.json':'./'+a.name; A[key]=b64(blob.subarray(a.offset,a.offset+a.len));});
+    var lm=document.getElementById('loadmsg'); if(lm) lm.textContent='rendering '+window.__N+' on-ledger Ciggie Puffs…', setTimeout(function(){var x=document.getElementById('loadmsg');if(x)x.remove();},4000);
+  })();
+
+const AS=(window.ASSETS||null);
+const codec = window.LoomCodec;
+const { renderDocument, resolvePalette } = codec;
+const engine = window.Recipe;   // collection engine: spec + seed -> recipe
+const { resolve } = engine;
+const lzmaMod = window.LZMA;   // LZMA (.lzma alone) decoder — assets are xz-class compressed; browsers have no native xz
+const { decompressLZMA } = lzmaMod;
+const VER='20261003-stokenet'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
+const cb=p=>p+(p.includes('?')?'&':'?')+'v='+VER;
+async function bytesOf(p){ let raw = (AS&&AS[p.split('?')[0]]) ? Uint8Array.from(atob(AS[p]),c=>c.charCodeAt(0)) : new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer());
+  if(raw.length>2 && raw[0]===0x1f && raw[1]===0x8b){ raw = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()); }   // gzip: inflate natively
+  else if(raw.length>13 && raw[0]!==0x1f && raw[5]===0xFF&&raw[6]===0xFF&&raw[7]===0xFF&&raw[8]===0xFF&&raw[9]===0xFF&&raw[10]===0xFF&&raw[11]===0xFF&&raw[12]===0xFF){ raw = decompressLZMA(raw); }   // lzma-alone (xz-class): 8-byte unknown-size marker; no native browser xz
+  return raw; }
+const T=256, HATDY=3;   // hats nudged down a few px to close the head/ear seam
+const CIGVARS=['cig1','cig2','cig3','cig5','cig_bundle','cig_pack','cig_giant','cigar','blunt','pipe','joint'];
+const STATIC=['base','base_female','base_albino','base_gold','base_zombie','hoodie','tuxedo','officer','officer_white','otter_tee','tiedye','wifebeater','white_tee','white_polo','gold_chain','gold_chain_x2','clock','ticker','neon_tube','bird','bib','grillz','grillz_vampire','grillz_diamond','grillz_chipped','eyepatch','cap','bucket_hat','sombrero1','sombrero2','sombrero3','sombrero4','halo','devil_horns','crown','crown_gems','crown_silver','elf_hat','santa_hat',...CIGVARS];
+// LAZY art pipeline: pre-fetch raw bytes (served: parallel, was 59 serial awaits), but DECODE each layer only on
+// first use — so startup decodes just the handful of traits actually shown, not all 59 up front.
+const img={}, RAW={};   // img = decoded-frame cache; RAW = pre-fetched compressed bytes (served only; inlined reads AS)
+const layerPath=f=>`./layers/${f}.loom`, hasLayer=f=>{const p=layerPath(f); return (AS&&AS[p]!=null)||RAW[p]!=null;};
+if(!AS) await Promise.all(STATIC.map(async f=>{ const p=layerPath(f); try{ RAW[p]=new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer()); }catch(e){ console.warn('layer missing:',f); } }));
+const getImg=f=>{ if(!(f in img)){ const p=layerPath(f); let raw=(AS&&AS[p])?Uint8Array.from(atob(AS[p]),c=>c.charCodeAt(0)):RAW[p];
+    try{ if(!raw){img[f]=null;} else { if(raw.length>13&&raw[0]!==0x1f&&raw[5]===0xFF&&raw[12]===0xFF) raw=decompressLZMA(raw); img[f]=renderDocument(raw).frames[0]; } }catch(e){ img[f]=null; } } return img[f]; };
+const mkc=()=>{const c=document.createElement('canvas');c.width=T;c.height=T;return c;};   // plain canvas (OffscreenCanvas isn't on older mobile Safari)
+const canv=n=>{const c=mkc(), f=getImg(n); if(f) c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(f),T,T),0,0); return c;};   // decodes n on first use; blank canvas if the layer failed to load
+const loomFrame=async p=>{ const r=renderDocument(await bytesOf(p)); return {id:new ImageData(new Uint8ClampedArray(r.frames[0]),r.canvasW,r.canvasH),w:r.canvasW,h:r.canvasH}; };   // feather-loom raster (soft alpha / gradients) -> {ImageData,w,h}
+const FXM=JSON.parse(new TextDecoder().decode(await bytesOf('./fx/_fxmeta.json')));   // sprite -> [x0,y0,canvasW,canvasH]; sprites are stored cropped to their bbox to shrink the loom
+const SPEC=JSON.parse(new TextDecoder().decode(await bytesOf('./ciggie.spec.json')));   // the collection cartridge — every token is resolve(SPEC,id)
+// Talking-Loom speech: deterministic closed-output line per token (reacts to G.pct). Loaded NON-BLOCKING
+// after the art (see end of file) so it can never delay or block the monkeys from rendering.
+let TALK=null;
+// each monkey's speech mood comes from its OWN seeded sentiment (same signal that drives its eyes), so monkeys
+// spread across moods just like the final multi-feed collection — words and eyes agree, and uniqueness stays high.
+function updateSpeech(){
+  // SOCIAL MOOD: the visible page = the "account". Each monkey's bump = its affinity toward the cliques its wallet-mates
+  // display, weighted by how many mates show each clique (excluding itself). Blends into mood -> nickname + quote + eyes.
+  const pres=AFF_DIMS.map(d=>chars.filter(c=>d.t(c.st)).length);
+  for(const ch of chars){
+    let sc=0,tot=0; for(let i=0;i<AFF_DIMS.length;i++){ const p=pres[i]-(AFF_DIMS[i].t(ch.st)?1:0); sc+=ch.aff[i]*p; tot+=p; }
+    ch.social = tot>0 ? clamp(sc/tot,-1,1) : 0;
+    if(ch.socEl){ const sv=ch.social; ch.socEl.textContent=`wallet vibe ${sv>=0?'+':''}${sv.toFixed(2)} ${sv>0.15?'😊':sv<-0.15?'😖':'😐'}`; ch.socEl.style.color=sv>0.1?'#6fe3b0':sv<-0.1?'#ff7a7a':'#8a93a6'; }
+    const mPct=senti(ch.fx.eyes)*30, blended=clamp(mPct*0.7+ch.social*30*0.3,-30,30), moodId=moodFromPct(blended);
+    let line=null; if(TALK){ try{ line=TALK.decode(TALK.doc,ch.id,blended); }catch(e){} }
+    if(ch.nameEl) ch.nameEl.innerHTML=nameHTML(ch.nf,line,moodId);   // reactive adjective (BLENDED mood) + noun (seeded by live line)
+    if(ch.say&&line!=null){ const cap=(ch.st.eyewear==='patch'&&drive(ch.fx.eyewear)>=0.5)?'I am the captain now: ':''; ch.say.textContent='“'+cap+line+'”'; }
+  } }
+const FX={}; for(const f of ['smoke_puff','coin','banana','rocket','fireball']){ const fr=await loomFrame(`./fx/${f}.loom`), [x0,y0,cw,ch]=FXM[f], c=mkc(); c.width=cw;c.height=ch; c.getContext('2d').putImageData(fr.id,x0,y0); FX[f]=c; }   // rebuild the full frame from the crop so spr() is unchanged + pixel-identical
+const BG={}; for(const f of ['bg_banana','bg_casino','bg_launchpad']){ const fr=await loomFrame(`./bg/${f}.loom`), c=mkc(); c.width=fr.w;c.height=fr.h; c.getContext('2d').putImageData(fr.id,0,0); BG[f]=c; }
+// MATRIX = a shared glyph ALPHABET (one ~6.5KB tileset loom) + a per-token tilemap strip generated from the seed, scrolled live.
+let MXA=null, MXM=null, buildMatrixStrip=null;
+{ MXM=JSON.parse(new TextDecoder().decode(await bytesOf('./bg/matrix_alphabet.meta.json')));
+  const r=renderDocument(await bytesOf('./bg/matrix_alphabet.loom')); MXA=mkc(); MXA.width=MXM.atlasW; MXA.height=MXM.atlasH;
+  MXA.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(r.frames[0]),r.canvasW,r.canvasH),0,0);
+  const TD=MXM.tileDim, LV=MXM.levels, NGL=MXM.nGlyphs, ACOLS=MXM.cols, MXCOLS=Math.ceil(T/TD)+1, MXROWS=48;
+  buildMatrixStrip=(seed)=>{ const sw=MXCOLS*TD, sh=MXROWS*TD, c=mkc(); c.width=sw; c.height=sh; const x=c.getContext('2d'); x.fillStyle='#020604'; x.fillRect(0,0,sw,sh);
+    for(let col=0; col<MXCOLS; col++){ const s=h32('mx'+seed+'_'+col), Ld=5+s%9, per=Ld+4+((s>>4)%10), off=s%per;   // seeded drops: length Ld, period per, phase off
+      for(let row=0; row<MXROWS; row++){ const pos=(row+off)%per; if(pos>=Ld) continue; const dist=(Ld-1)-pos;   // head at drop bottom (leads when falling); dimmer up the trail
+        const lvl=dist===0?0:Math.min(LV-1,1+Math.floor((dist-1)*(LV-1)/Ld)), g=h32('g'+seed+'_'+col+'_'+row)%NGL, id=g*LV+lvl;
+        x.drawImage(MXA,(id%ACOLS)*TD,((id/ACOLS)|0)*TD,TD,TD, col*TD,row*TD,TD,TD); } }
+    return {c,sh}; };
+}
+// COLOUR ALPHABET: ONE base hoodie, recoloured per token via the palette-graph (collection.ts resolvePalette).
+// Proves N colourways from one layer + a per-token hue node — zero extra art bytes. Same primitive recolours any trait.
+let recolorHoodie=null;
+if(getImg('hoodie')){ const hb=getImg('hoodie'), seen=new Map(), entries=[];
+  for(let p=0;p<hb.length;p+=4){ if(hb[p+3]===0)continue; const k=(hb[p]<<16)|(hb[p+1]<<8)|hb[p+2]; if(!seen.has(k)){ seen.set(k,entries.length); entries.push([hb[p],hb[p+1],hb[p+2],255]); } }
+  recolorHoodie=(steps)=>{ const pal=resolvePalette({base:{kind:'abs',entries},t:{kind:'transform',parent:'base',op:'hue',steps}},'t'), out=new Uint8ClampedArray(hb.length), B=1.85;   // B = saturation boost: the hoodie base is pastel, punch it up so colourways are vivid + distinct
+    for(let p=0;p<hb.length;p+=4){ if(hb[p+3]===0)continue; const i=seen.get((hb[p]<<16)|(hb[p+1]<<8)|hb[p+2]);
+      const r=pal[i*4],g=pal[i*4+1],b=pal[i*4+2], L=0.3*r+0.59*g+0.11*b;                                      // push each channel away from its luma (ClampedArray clamps)
+      out[p]=L+(r-L)*B; out[p+1]=L+(g-L)*B; out[p+2]=L+(b-L)*B; out[p+3]=255; }
+    const c=mkc(); c.getContext('2d').putImageData(new ImageData(out,T,T),0,0); return c; }; }
+// generic seeded hue-recolour (same mechanism as the hoodie) -> baseball-cap + otter-tee colourways (16 each)
+function mkHueRecolor(arr){ if(!arr) return null; const seen=new Map(), entries=[];
+  for(let p=0;p<arr.length;p+=4){ if(arr[p+3]===0)continue; const k=(arr[p]<<16)|(arr[p+1]<<8)|arr[p+2]; if(!seen.has(k)){ seen.set(k,entries.length); entries.push([arr[p],arr[p+1],arr[p+2],255]); } }
+  return (steps)=>{ const pal=resolvePalette({base:{kind:'abs',entries},t:{kind:'transform',parent:'base',op:'hue',steps}},'t'), out=new Uint8ClampedArray(arr.length);
+    for(let p=0;p<arr.length;p+=4){ if(arr[p+3]===0)continue; const i=seen.get((arr[p]<<16)|(arr[p+1]<<8)|arr[p+2]); out[p]=pal[i*4];out[p+1]=pal[i*4+1];out[p+2]=pal[i*4+2];out[p+3]=255; }
+    const c=mkc(); c.getContext('2d').putImageData(new ImageData(out,T,T),0,0); return c; }; }
+const recolorCap=mkHueRecolor(getImg('cap')), recolorOtter=mkHueRecolor(getImg('otter_tee')), recolorBucket=mkHueRecolor(getImg('bucket_hat'));
+// TUXEDO colourways: the tux is grayscale (dark jacket + white shirt), so hue-rotate can't recolour black — instead
+// COLORIZE the jacket onto a target ramp (shading preserved) + tint the shirt. 0=black(identity),1=white,2=powder-blue,3=orange.
+let recolorTux=null;
+if(getImg('tuxedo')){ const tb=getImg('tuxedo');
+  const WAYS=[null, {jD:[120,118,114],jL:[242,240,236],sh:null}, {jD:[70,100,148],jL:[176,206,236],sh:[210,228,246]}, {jD:[150,74,24],jL:[242,170,88],sh:[246,230,206]}];
+  recolorTux=(idx)=>{ const w=WAYS[idx]; if(!w) return null; const out=new Uint8ClampedArray(tb.length);
+    for(let p=0;p<tb.length;p+=4){ if(tb[p+3]===0)continue; const L=(tb[p]+tb[p+1]+tb[p+2])/3;
+      if(L<120){ const t=Math.min(1,L/90); out[p]=w.jD[0]+(w.jL[0]-w.jD[0])*t; out[p+1]=w.jD[1]+(w.jL[1]-w.jD[1])*t; out[p+2]=w.jD[2]+(w.jL[2]-w.jD[2])*t; }
+      else if(w.sh){ const s=L/252; out[p]=w.sh[0]*s; out[p+1]=w.sh[1]*s; out[p+2]=w.sh[2]*s; }
+      else { out[p]=tb[p]; out[p+1]=tb[p+1]; out[p+2]=tb[p+2]; }
+      out[p+3]=255; }
+    const c=mkc(); c.getContext('2d').putImageData(new ImageData(out,T,T),0,0); return c; }; }
+// TRON bodysuit: dark fabric built from the white_tee silhouette (recoloured near-black navy, folds kept via
+// luminance). Glowing circuit lines are drawn live + pulsing over it — no new art asset, reuse the tee shape.
+let TRONbase=null, TRONmask=null, TRONedge=null;
+if(getImg('white_tee')){ const wt=getImg('white_tee'), out=new Uint8ClampedArray(wt.length);
+  for(let p=0;p<wt.length;p+=4){ if(wt[p+3]===0)continue; const s=((wt[p]+wt[p+1]+wt[p+2])/3)/255;
+    out[p]=9+s*15; out[p+1]=11+s*20; out[p+2]=17+s*34; out[p+3]=255; }   // deep blue-black fabric
+  TRONbase=mkc(); TRONbase.getContext('2d').putImageData(new ImageData(out,T,T),0,0); TRONmask=canv('white_tee');
+  // TRACE THE SILHOUETTE: the neon is the garment's own outline + concentric contours hugging the shape (not a grid).
+  const W=T,H=T, op=new Uint8Array(W*H); for(let i=0;i<W*H;i++) op[i]=wt[i*4+3]>0?1:0;
+  const edgeOf=m=>{ const e=new Uint8Array(W*H); for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ const i=y*W+x; if(m[i]&&(!m[i-1]||!m[i+1]||!m[i-W]||!m[i+W])) e[i]=1; } return e; };
+  const erode=(m,k)=>{ let c=m; for(let s=0;s<k;s++){ const e=new Uint8Array(W*H); for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ const i=y*W+x; if(c[i]&&c[i-1]&&c[i+1]&&c[i-W]&&c[i+W]) e[i]=1; } c=e; } return c; };
+  const e0=edgeOf(op), e1=edgeOf(erode(op,7)), e2=edgeOf(erode(op,14));   // outline + two inset rings following the body
+  const ec=mkc(), ex=ec.getContext('2d'), idata=ex.createImageData(W,H), DA=idata.data;
+  const paint=(e,a)=>{ for(let i=0;i<W*H;i++) if(e[i]){ DA[i*4]=255;DA[i*4+1]=255;DA[i*4+2]=255;DA[i*4+3]=a; } };
+  paint(e2,170); paint(e1,215); paint(e0,255); ex.putImageData(idata,0,0);
+  ex.globalCompositeOperation='source-over'; ex.strokeStyle='rgba(255,255,255,0.9)'; ex.lineWidth=1.4; ex.lineCap='round';
+  ex.beginPath(); ex.moveTo(112,176); ex.lineTo(128,188); ex.lineTo(144,176); ex.moveTo(128,188); ex.lineTo(128,250); ex.stroke();   // collar V + centre seam (natural suit seams, follow the torso)
+  const ed=ex.getImageData(0,0,W,H).data, mk=wt;   // clip the seam strokes to the garment so nothing spills
+  const mec=ex.createImageData(W,H), MD=mec.data; for(let i=0;i<W*H;i++){ const on=ed[i*4+3]>0 && mk[i*4+3]>0; if(on){ MD[i*4]=255;MD[i*4+1]=255;MD[i*4+2]=255;MD[i*4+3]=ed[i*4+3]; } }
+  ex.putImageData(mec,0,0); TRONedge=ec; }
+const NG=mkc(), ngx=NG.getContext('2d'); const NTcanv=canv('neon_tube'); const BIRDcanv=canv('bird');   // neon-tube mask + bird (drawn live to sway)
+const LC={halo:canv('halo'),devil_horns:canv('devil_horns')}, TDcanv=canv('tiedye');   // halo<->horns, tie-dye recolour mask
+// Four UNIQUE sombrero designs (distinct art, not one resized). The served hat is STATIC and swaps by ledger band,
+// exactly like the whiteshirt trait — no cycling, no runtime scaling.
+const SOMB4=[canv('sombrero1'),canv('sombrero2'),canv('sombrero3'),canv('sombrero4')];
+const CROWN=canv('crown'), CROWN_SILVER=canv('crown_silver'), CROWNGEMS=canv('crown_gems'), ELF=canv('elf_hat'), SANTA=canv('santa_hat'), EYEPATCH=canv('eyepatch');   // crown gold/silver + xmas + Gemini eye patch
+const GEMCOL={ruby:'#e0244d',sapphire:'#2f6bff',emerald:'#1fc06a',gold:'#ffce3a',diamond:'#dff2ff',amethyst:'#a65bff'};   // earring gem colours
+const EARL=[[47,128],[43,119],[42,110]], EARR=[[204,126],[208,117],[209,108]];   // ear outer-lower-rim anchors (derived from base art), lobe->up
+function drawEarring(ctx,x,y,col,t,seed){ ctx.save(); const cx=x+0.5, cy=y+2;
+  ctx.fillStyle='#e6c24a'; ctx.fillRect(x,y-3,1,3);                               // gold hook/post into the lobe
+  ctx.fillStyle=col; ctx.beginPath();                                            // faceted DIAMOND gem (reads as a jewel, not a dot)
+  ctx.moveTo(cx,cy-2.4); ctx.lineTo(cx+2.2,cy); ctx.lineTo(cx,cy+2.8); ctx.lineTo(cx-2.2,cy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.beginPath();                        // top facet shine
+  ctx.moveTo(cx,cy-2.4); ctx.lineTo(cx+1.1,cy-0.5); ctx.lineTo(cx-1.1,cy-0.5); ctx.closePath(); ctx.fill();
+  const tw=0.45+0.55*Math.sin(t*0.25+seed*1.7);                                   // twinkle glow
+  ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5*tw; ctx.shadowColor=col; ctx.shadowBlur=3.5;
+  ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,2,0,7); ctx.fill(); ctx.restore(); }
+const CN=['21','17','+3','-2','16','A','K','Q','10','5','+1','19','20','7','13','BUST','J','8'];   // blackjack card-count numbers
+
+// the live ledger inputs the whole collection reacts to (token prices + account activity + NFT holdings)
+const G={xrd:0,early:0,ciggie:0,oci:0,xrd_usd:0.5,early_usd:0.3,ciggie_usd:0.3,oci_usd:0.3,acct:30,nfts:3,network:400000}, RANGES={};
+const INPUTS=[
+  ['xrd','$XRD 24h %',-30,30,1,v=>v+'%'],['early','$EARLY 24h %',-30,30,1,v=>v+'%'],['ciggie','$CIGGIE 24h %',-30,30,1,v=>v+'%'],['oci','$OCI 24h %',-30,30,1,v=>v+'%'],
+  ['xrd_usd','$XRD price',0,2,0.01,v=>'$'+v],['early_usd','$EARLY price',0,1,0.005,v=>'$'+v],['ciggie_usd','$CIGGIE price',0,1,0.005,v=>'$'+v],['oci_usd','$OCI price',0,1,0.005,v=>'$'+v],
+  ['acct','Account activity (24h tx)',0,120,1,v=>v+''],['nfts','Ciggie-Puffs in wallet',0,24,1,v=>v+''],['network','Network tx volume (24h)',0,1000000,5000,v=>v+'']];
+for(const [k,label,mn,mx,st,fmt] of INPUTS){ const d=document.createElement('div'); d.className='ctl';
+  d.innerHTML=`<label>${label}: <span class="val" id="v_${k}">${fmt(G[k])}</span></label>`;
+  const r=document.createElement('input'); r.type='range'; r.min=mn;r.max=mx;r.step=st;r.value=G[k];
+  r.oninput=()=>{G[k]=+r.value; document.getElementById('v_'+k).textContent=fmt(+r.value); updateSpeech();}; d.appendChild(r); RANGES[k]={r,fmt}; document.getElementById('ctrls').appendChild(d);
+}
+{ const d=document.createElement('div'); d.className='ctl'; const b=document.createElement('button'); b.textContent='🎲 Shuffle inputs'; b.className='fbtn'; b.style.marginTop='18px';   // randomise every feed to preview different market states
+  b.onclick=()=>{ for(const [k,,mn,mx,st] of INPUTS){ const v=Math.round((mn+Math.random()*(mx-mn))/st)*st; G[k]=v; RANGES[k].r.value=v; document.getElementById('v_'+k).textContent=RANGES[k].fmt(v); } updateSpeech(); };
+  d.appendChild(b);
+  const tog=document.createElement('button'); tog.textContent='📊 affinity: on'; tog.className='fbtn'; tog.style.marginLeft='8px';   // show/hide the per-monkey trait-affinity charts (they make cells tall)
+  tog.onclick=()=>{ const off=document.body.classList.toggle('hideaff'); tog.textContent='📊 affinity: '+(off?'off':'on'); }; d.appendChild(tog);
+  document.getElementById('ctrls').appendChild(d); }
+const clamp=(v,a,b)=>v<a?a:v>b?b:v, map=(v,a,b,c,d)=>c+clamp((v-a)/(b-a),0,1)*(d-c);
+const h32=s=>{let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return h>>>0;};
+const SENS={hair:{o:0.03,s:0.30},normal:{o:0.25,s:0.70},stoic:{o:0.55,s:1.0}}; const curve=(n,t)=>map(n,SENS[t].o,SENS[t].s,0,1);
+// GENERIC drive/senti over any spec input (kind+scale from SPEC.inputs) — consumes the recipe's fx binding {input,dir,sens}
+const drive=fx=>{ const raw=G[fx.input], ic=SPEC.inputs[fx.input]; let n;
+  if(ic.kind==='signed'){ const s=raw/ic.scale; n=fx.dir==='up'?Math.max(0,s):fx.dir==='down'?Math.max(0,-s):Math.abs(s); }
+  else { const x=raw/ic.scale; n=fx.dir==='down'?(1-x):x; } return curve(n,fx.sens); };
+const senti=fx=>{ const raw=G[fx.input], ic=SPEC.inputs[fx.input]; let s;
+  if(ic.kind==='signed') s=raw/ic.scale; else s=(raw/ic.scale)*2-1; return clamp(fx.dir==='down'?-s:s,-1,1); };
+// ---- LIVE LEDGER DATA: populate G from the real Radix network, GATEWAY-ONLY (no third-party price APIs).
+// Prices are read straight from an on-ledger DEX pool's reserves (spot = XRD_reserve / token_reserve, in XRD);
+// 24h change comes from the SAME pool read at a historical ledger state. One pool, un-aggregated — by design.
+// Every source is PUBLIC + KEYLESS + CORS (allow-origin:*), so this static Cloudflare-Pages app needs no backend. ----
+const NETS={
+  mainnet:{ gw:'https://mainnet.radixdlt.com',
+    xrd:'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+    usd:'component_rdx1czy2naejcqx8gv46zdsex2syuxrs4jnqzug58e66zr8wglxzvu97qr',       // XRD/hUSDC Ociswap PRECISION pool; XRD-USD = price_sqrt^2 (lets us show all prices in USD)
+    pools:{ early:{a:'pool_rdx1c5hm2rt67scp22pq6tpkfg6cd22g0wwz88065wsy9gdfnd86sv3t4t',k:'basic'},   // EARLY/XRD basic pool's native TwoResourcePool (reserve ratio)
+            oci:{a:'pool_rdx1ckyg8aujf09uh8qlz6asst75g5w6pl6vu8nl6qrhskawcndyk6585y',k:'basic'},     // OCI/XRD basic pool
+            ciggie:{a:'component_rdx1cryxd9d5q8fj8fh6qq4ayaa5kwd8hzlsk2ymn67p29q77lhudhmruj',k:'prec'} },  // CIGGIE/XRD Ociswap PRECISION pool; CIGGIE=x -> price = price_sqrt^2 XRD
+    puffs:null },                        // Ciggie-Puffs NFT resource (set after mint)
+  stokenet:{ gw:'https://stokenet.radixdlt.com',
+    xrd:'resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc', usd:null,   // no stokenet USD pool -> prices shown in XRD
+    pools:{ early:null, oci:null, ciggie:null },
+    puffs:'resource_tdx_2_1nfm5fsfgpqv3m2n42etwemaef3yuseuqsq9ha5nfzh0rfy2adqwuyv',          // LIVE stokenet Ciggie Puffs NFT resource (deployed 2026-10-03)
+    component:'component_tdx_2_1cr79kf7pycgx8efwjmdw7uc4xxsvqqpx63fcvtp25c2k3yc84sdscs' } };  // collection component (bundle KVStore source for on-ledger render path)
+const LIVE={ net:'stokenet', on:false, timer:null, account:null, _ago:null, get c(){return NETS[this.net];} };
+const gwPost=(p,b)=>fetch(LIVE.c.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json());
+function setInput(k,v,disp){ if(!(k in G))return; G[k]=v; const R=RANGES[k]; if(R){ R.r.value=v; const el=document.getElementById('v_'+k); if(el) el.textContent=disp!=null?disp:R.fmt(v); } }
+// token price in XRD from a BASIC native TwoResourcePool: XRD reserve / OTHER reserve (a pool holds exactly the 2).
+function poolPrice(item,xrdAddr){ const f=(item&&item.fungible_resources&&item.fungible_resources.items)||[]; const amt=a=>+((f.find(x=>x.resource_address===a)||{}).amount||0);
+  const xrd=amt(xrdAddr), other=f.find(x=>x.resource_address!==xrdAddr), tok=+((other||{}).amount||0); return tok>0?xrd/tok:0; }
+// Ociswap PRECISION pool: concentrated liquidity, so NOT a reserve ratio — spot = price_sqrt^2 (= quote-per-base, base=x).
+// Both our precision pools quote in XRD-side-as-y with base=x, so price_sqrt^2 = base's price in the quote (XRD/hUSDC->XRD-USD, CIGGIE/XRD->CIGGIE-XRD).
+function sqrtP2(item){ const f=((item&&item.details&&item.details.state&&item.details.state.fields)||[]).find(x=>x.field_name==='price_sqrt'); const s=f?+f.value:0; return s*s; }
+const tokXrd=(item,e,xrdAddr)=>e.k==='prec'?sqrtP2(item):poolPrice(item,xrdAddr);   // token price in XRD, either pool kind
+async function livePrices(){ const C=LIVE.c; const ents=Object.entries(C.pools).filter(([,v])=>v&&v.a);
+  const addrs=[...(C.usd?[C.usd]:[]), ...ents.map(([,v])=>v.a)]; if(!addrs.length) return;
+  try{ const now=await gwPost('/state/entity/details',{addresses:addrs,aggregation_level:'Global'}); const ls=now.ledger_state;
+    LIVE._ago=new Date(new Date(ls.proposer_round_timestamp).getTime()-864e5).toISOString();   // reuse this ledger-clock 24h mark for network/account too
+    const old=await gwPost('/state/entity/details',{addresses:addrs,aggregation_level:'Global',at_ledger_state:{timestamp:LIVE._ago}});
+    const byA=o=>Object.fromEntries(((o&&o.items)||[]).map(it=>[it.address,it])); const N=byA(now), O=byA(old);
+    const xun=C.usd?sqrtP2(N[C.usd]):1, xuo=C.usd?sqrtP2(O[C.usd]):1;   // XRD->USD now/24h (1 when no USD pool -> keep prices XRD-denominated)
+    const pct=(n,o)=>o>0?clamp(((n-o)/o)*100,-30,30):NaN, show=p=>(p>=0?'+':'')+p.toFixed(1)+'%', disp=u=>C.usd?'$'+u.toPrecision(3):u.toPrecision(3)+' XRD';
+    if(C.usd&&xun>0){ setInput('xrd_usd',xun,'$'+xun.toPrecision(3)); const p=pct(xun,xuo); if(isFinite(p)) setInput('xrd',p,show(p)); }
+    for(const [k,e] of ents){ const xn=tokXrd(N[e.a],e,C.xrd); if(xn<=0) continue; const un=xn*xun, uo=tokXrd(O[e.a],e,C.xrd)*xuo;
+      setInput(k+'_usd', un, disp(un)); const p=pct(un,uo); if(isFinite(p)) setInput(k,p,show(p)); } }
+  catch(e){} }
+async function liveNetwork(){ try{ const head=await gwPost('/stream/transactions',{limit_per_page:1,order:'Desc'}); const ls=head.ledger_state;
+  LIVE._ago=new Date(new Date(ls.proposer_round_timestamp).getTime()-864e5).toISOString();
+  const old=await gwPost('/stream/transactions',{limit_per_page:1,order:'Asc',from_ledger_state:{timestamp:LIVE._ago}}); const then=old.items?.[0]?.state_version;
+  if(then) setInput('network', Math.min(ls.state_version-then,1e6)); }catch(e){} }
+async function liveAccount(){ const a=LIVE.account; if(!a) return; try{ const ago=LIVE._ago||new Date(Date.now()-864e5).toISOString();
+  let cur=null,cnt=0,pg=0; do{ const b={limit_per_page:100,order:'Desc',kind_filter:'User',from_ledger_state:{timestamp:ago},affected_global_entities_filter:[a]}; if(cur)b.cursor=cur;
+    const r=await gwPost('/stream/transactions',b); cnt+=(r.items||[]).length; cur=r.next_cursor; pg++; }while(cur&&pg<3); setInput('acct', Math.min(cnt,120));
+  if(LIVE.c.puffs){ const nf=await gwPost('/state/entity/page/non-fungibles/',{address:a,aggregation_level:'Vault'});
+    const row=(nf.items||[]).find(i=>i.resource_address===LIVE.c.puffs); const n=row?(row.vaults?.items?.reduce((s,v)=>s+(+v.total_count||0),0)||+row.amount||0):0; setInput('nfts', Math.min(n,24)); }
+}catch(e){} }
+async function liveRefresh(){ const st=document.getElementById('livestat'); if(st) st.textContent='⟳ fetching…';
+  await Promise.all([livePrices(), liveNetwork().then(liveAccount)]); updateSpeech();
+  if(st){ const t=new Date().toLocaleTimeString(); st.textContent=`🟢 live · ${LIVE.net} · updated ${t}${LIVE.account?' · wallet '+LIVE.account.slice(0,11)+'…':''}`; } }
+function liveStop(){ LIVE.on=false; if(LIVE.timer){ clearInterval(LIVE.timer); LIVE.timer=null; } const st=document.getElementById('livestat'); if(st) st.textContent='⚪ manual mode'; }
+function liveStart(){ if(LIVE.on) return; LIVE.on=true; liveRefresh(); LIVE.timer=setInterval(liveRefresh,60000); }
+{ const d=document.createElement('div'); d.className='ctl'; d.style.marginTop='14px';
+  const go=document.createElement('button'); go.className='fbtn'; go.textContent='🔴 Go live (mainnet)';
+  go.onclick=()=>{ if(LIVE.on){ liveStop(); go.textContent='🔴 Go live (mainnet)'; } else { liveStart(); go.textContent='⏸ Stop live'; } }; d.appendChild(go);
+  const acc=document.createElement('input'); acc.type='text'; acc.placeholder='account_rdx… (optional — wires wallet tx + NFT inputs)'; acc.style.cssText='margin-left:8px;width:280px;max-width:60vw;font-size:11px;padding:3px';
+  acc.onchange=()=>{ LIVE.account=acc.value.trim().startsWith('account_')?acc.value.trim():null; if(LIVE.on) liveRefresh(); }; d.appendChild(acc);
+  const st=document.createElement('span'); st.id='livestat'; st.style.cssText='margin-left:10px;font-size:11px;opacity:.8'; st.textContent='⚪ manual mode'; d.appendChild(st);
+  document.getElementById('ctrls').appendChild(d);
+  const q=new URLSearchParams(location.search); if(q.get('account')){ LIVE.account=q.get('account'); acc.value=LIVE.account; }
+  if(q.get('net')==='stokenet') LIVE.net='stokenet';
+  if(q.get('live')==='1'){ liveStart(); go.textContent='⏸ Stop live'; } }   // ?live=1 auto-starts; ?account=…&net=stokenet supported
+// ---- CHARACTER PROFILE: deterministic name (fixed parts @mint + reactive nickname from the live quote) + fake stats + lore ----
+const FIRST=['Chad','Giga','Satoshi','Pepe','Wojak','Apollo','Luna','Diamond','Moon','Ser','Anon','Dutch','Rex','Zogg','Bongo','Kong','Caesar','Bananas','Puff','Ash','Smokey','Blaze','Nugget','Chunk','Tito','Cosmo','Rocco','Vinnie','Gordo','Milo','Boomer','Zyn','Kujo','Fentso','Brick','Hazmat','Clout','Jericho','Tendie','Vega'];
+const TYPE=['Degen','Baron','Oracle','Hustler','Prophet','Grifter','Whale','Maxi','Shiller','Sage','Menace','Jeet','Chad','Villain','Tycoon','Gremlin'];
+const LAST=['Puffington','Ashby','Moonsworth','Vandercoin','McBaggins','Hodlsworth','Rugsby','Degenova','Kandlestick','Bricktop','Smoketree','Chartwell','Bloodworth','Greenback','Cindersmith','Dumpsey','Pumpwell','Ashcroft','Copesworth','Jeetman','Paperhanz','Diamondcore','Satoshison','Blazewood','Embers','Nicotino','Tarbell','Cohiba','Ironlung','Marlborough','Wickman','Flintlock','Nakamoto-Jones','von Rekt','Lungsworth','Tendieman','Bogsley','Slippage','Mawithers','Backstreet'];
+const ADJ=[['Soaring','Ascendant','Blazing','Euphoric','Mooning','Unstoppable'],['Pumping','Emerald','Rallying','Bullish','Grinning','Cocky'],['Smoky','Mellow','Hazy','Zen','Unbothered','Lowkey'],['Jittery','Sweaty','Twitchy','Nervous','Paranoid','Clammy'],['Bleeding','Crimson','Grim','Fading','Sullen','Hollow'],['Rekt','Cooked','Nuked','Ashen','Liquidated','Doomed']];
+const NOUN=['Prophet','Oracle','Degen','Phantom','Baron','Jester','Sage','Menace','Hustler','Visionary','Monk','Ghost','Gambler','Mystic','Wanderer','Smoker','Dreamer','Outlaw','Legend','Shaman','Warlord','Hermit','Trickster','Kingpin','Vagrant','Savant','Bagholder','Omen'];
+const moodFromPct=pct=>pct>=20?0:pct>=6?1:pct>=-5?2:pct>=-12?3:pct>=-22?4:5;
+const nameFixed=id=>({first:FIRST[h32('fn'+id)%FIRST.length], type:TYPE[h32('ty'+id)%TYPE.length], last:LAST[h32('ln'+id)%LAST.length]});
+const nameHTML=(nf,line,moodId)=>{ const key=line||('seed'+nf.first); return `${nf.first} ${nf.type} the <b>${ADJ[moodId][h32('a'+key)%ADJ[moodId].length]} ${NOUN[h32('nn'+key)%NOUN.length]}</b> ${nf.last}`; };   // fixed · the · REACTIVE adj+noun · fixed
+const statOf=id=>({cigs:h32('cig'+id)%949999+1001, power:h32('pwr'+id)%8900+1100, packs:h32('ppd'+id)%8+1, rugs:h32('rug'+id)%40, dmd:h32('dmd'+id)%100});
+const BG_LORE={matrix:'glitching green code-rain',rainbow:'the end of a degen rainbow',banana:'the banana jungle',casino:'the neon casino pits',rocket:'a launchpad gantry',moon:'the cratered moon',skydive:'free-fall over the ledger',radix:'the spinning Radix vortex'};
+const LORE_TAIL=['and swears the next candle is green','chasing one more pump before the ash settles','holding a bag no one else will touch','convinced the purple otter watches over them','still early — always early','one lung down, diamond hands up'];
+const loreOf=(id,st,nf,s)=>`Minted in ${BG_LORE[st.bg]||'the haze'}, ${nf.first} ${nf.last} lit their first ${st.cig} at dawn and never stopped. A ${nf.type.toLowerCase()} who's survived ${s.rugs} rugs and smoked ${s.cigs.toLocaleString()} darts — ${LORE_TAIL[h32('lt'+id)%LORE_TAIL.length]}.`;
+// TRAIT AFFINITY: each monkey has a seeded like/dislike (-1..1) toward 8 "social" trait-cliques it detects in OTHER
+// monkeys in the same account; a wallet full of cliques it LIKES lifts its mood, cliques it hates drag it down.
+const AFF_DIMS=[
+ {k:'gold',   e:'🥇', t:s=>s.mon==='gold'},            {k:'zombie', e:'🧟', t:s=>s.mon==='zombie'},
+ {k:'albino', e:'👻', t:s=>s.mon==='albino'},          {k:'female', e:'🎀', t:s=>s.mon==='female'},
+ {k:'crown',  e:'👑', t:s=>s.head==='crown'||s.head==='crown_silver'},  {k:'officer', e:'🎖', t:s=>s.body==='officer'||s.body==='officer_white'},
+ {k:'hyper',  e:'⚡', t:s=>s.body==='hypersuit'},       {k:'diamond',e:'💎', t:s=>s.grillz==='diamond'||s.ear==='diamond'}];
+const affinityOf=id=>AFF_DIMS.map(d=>(h32('aff'+d.k+id)%2001-1000)/1000);   // deterministic -1..1 per clique
+// red -> amber -> teal by signed sentiment
+function eyeColor(s){ const t=(s+1)/2; let r,g,b;
+  if(t<0.5){const k=t/0.5; r=255; g=40+160*k; b=40;} else {const k=(t-0.5)/0.5; r=255-215*k; g=200+55*k; b=40+160*k;}
+  return [r|0,g|0,b|0]; }
+
+// ---- COLLECTION: resolve all N tokens as cheap metadata; build heavy canvases ONLY for the visible page ----
+// (480 tokens upfront as canvases would OOM mobile Safari — lazy per-page build keeps memory at ~48 monkeys.)
+const N=(window.__N||480), PAGESZ=24, chars=[];
+const META=Array.from({length:N},(_,id)=>({id,rec:resolve(SPEC,id)}));   // {id, recipe}; recipe = traits + fx + recolor (no pixels)
+const rfxTags=m=>{ const s=m.rec.traits, a=[];   // the reactive behaviours this token actually has (for the Reactivity filter)
+  if(s.coin==='coin')a.push('coin'); if(s.coin==='snow')a.push('snow'); if(s.body==='officer'||s.body==='officer_white')a.push('rack'); if(s.eyewear==='patch')a.push('patch');
+  if(['ticker','neon_tube','clock','bird','bib'].includes(s.chain))a.push(s.chain);
+  if(['sombrero','halo_horns','satellite','tophat','crown','crown_silver','xmas'].includes(s.head))a.push(s.head); return a; };
+
+function buildChar(m){ const id=m.id, rec=m.rec, st=rec.traits, fx=rec.fx;   // build one monkey's canvases + grid cell
+  const oc=mkc(), ox=oc.getContext('2d'); const put=n=>ox.drawImage(canv(n),0,0);
+  const bodyC = rec.recolor.body ? ( st.body==='hoodie' ? (recolorHoodie&&recolorHoodie(rec.recolor.body.steps))   // per-token garment recolour (from the recipe):
+                                   : st.body==='tuxedo' ? (recolorTux&&recolorTux(rec.recolor.body.steps))        // hoodie=hue rotate, tuxedo=colorize,
+                                   : st.body==='otter_tee' ? (recolorOtter&&recolorOtter(rec.recolor.body.steps)) : null ) : null;   // otter tee=hue rotate (16 colourways)
+  const build=(shirt)=>{ ox.clearRect(0,0,T,T); const mb='base_'+st.mon; put(st.mon!=='classic'&&hasLayer(mb)?mb:'base'); if(shirt){ if(shirt==='hypersuit'&&TRONbase) ox.drawImage(TRONbase,0,0); else if(bodyC && shirt===st.body) ox.drawImage(bodyC,0,0); else put(shirt); }   // rebuildable so the whiteshirt can morph (stays UNDER the necklace)
+    if(st.chain!=='none'&&st.chain!=='bird')put(st.chain); if(st.grillz&&st.grillz!=='none')put(st.grillz==='gold'?'grillz':'grillz_'+st.grillz); put(st.cig);
+    if(st.head==='cap')ox.drawImage(rec.recolor.head&&recolorCap?recolorCap(rec.recolor.head.steps):canv('cap'),0,HATDY);   // baseball cap: 16 seeded colourways
+    else if(st.head==='bucket_hat')ox.drawImage(rec.recolor.head&&recolorBucket?recolorBucket(rec.recolor.head.steps):canv('bucket_hat'),0,HATDY); };   // bucket hat: 16 seeded colourways
+  const shirt0 = st.body==='whiteshirt' ? 'white_tee' : st.body; build(shirt0);   // whiteshirt swaps wifebeater/tee/polo by input
+  const cell=document.createElement('div'); cell.className='cell'; const cv=document.createElement('canvas'); cv.width=T;cv.height=T; cell.appendChild(cv);
+  const d=f=>`${f.input}/${f.dir}/${f.window[0]}/${f.sens[0]}`;
+  const bits=[`eyes[${d(fx.eyes)}]`,`smoke[${d(fx.smoke)}]`,st.chain==='ticker'&&`ticker[24h%]`,st.chain==='neon_tube'&&`neon[${d(fx.neck)}]`,st.coin&&st.coin!=='none'&&`${st.coin}[${d(fx.coin)}]`,`bg:${st.bg}[${d(fx.bg)}]`].filter(Boolean).join(' ');
+  const nf=nameFixed(id), s=statOf(id);
+  const nmEl=document.createElement('div'); nmEl.className='pname'; nmEl.title=loreOf(id,st,nf,s); nmEl.innerHTML=nameHTML(nf,null,moodFromPct(senti(fx.eyes)*30)); cell.appendChild(nmEl);
+  const stEl=document.createElement('div'); stEl.className='stats'; stEl.textContent=`🚬 ${s.cigs.toLocaleString()} · ⚡ ${s.power.toLocaleString()} · 🏳 ${s.rugs} · 💎 ${s.dmd}%`; cell.appendChild(stEl);
+  const aff=affinityOf(id);   // trait-affinity DIVERGING bar chart (right/green = likes that clique, left/red = dislikes)
+  const CW=140,RH=9,CX=72,MX=60,HH=AFF_DIMS.length*RH+2; let svg=`<svg width="${CW}" height="${HH}" viewBox="0 0 ${CW} ${HH}">`;
+  svg+=`<line x1="${CX}" y1="1" x2="${CX}" y2="${HH-1}" stroke="#3a4252" stroke-width="1"/>`;
+  AFF_DIMS.forEach((d,i)=>{ const y=i*RH+2, v=aff[i], w=Math.max(1.5,Math.abs(v)*MX), x=v>=0?CX:CX-w;
+    svg+=`<text x="2" y="${y+6}" font-size="8" fill="#8a93a6">${d.e}</text><rect x="${x}" y="${y}" width="${w}" height="${RH-3}" rx="1.5" fill="${v>=0?'#3dff8a':'#ff5a5a'}"><title>${d.k}: ${v>=0?'+':''}${v.toFixed(2)}</title></rect>`; });
+  svg+='</svg>'; const chWrap=document.createElement('div'); chWrap.className='affwrap'; chWrap.innerHTML=svg; cell.appendChild(chWrap);
+  const socEl=document.createElement('div'); socEl.className='soc'; cell.appendChild(socEl);   // reactive: this monkey's mood bump from the wallet's cliques
+  const lab=document.createElement('div'); lab.className='id';
+  lab.innerHTML=`#${id} ${[st.mon!=='classic'&&st.mon,st.cig,st.head!=='none'&&st.head,st.body!=='none'&&st.body,st.chain!=='none'&&st.chain,st.grillz!=='none'&&st.grillz,st.coin!=='none'&&st.coin,st.ear!=='none'&&(st.ear+'-ears'),st.eyewear==='patch'&&'eyepatch'].filter(Boolean).join(' ')}<br><span class="fx">${bits}</span>`;
+  cell.appendChild(lab);
+  const say=document.createElement('div'); say.className='say'; cell.appendChild(say);   // Talking-Loom quote bubble
+  document.getElementById('grid').appendChild(cell);
+  const _cx=cv.getContext('2d'); _cx.imageSmoothingEnabled=false;   // keep the scaled sombrero crisp pixel-art (no bilinear mush)
+  return {id,st,fx,say,nameEl:nmEl,nf,aff,socEl,social:0,static:oc,ctx:_cx,phase:h32('ph'+id)%628,build,shirt:shirt0,cigc:canv(st.cig),chainc:((st.body==='officer'||st.body==='officer_white'||st.body==='tiedye'||st.body==='hypersuit')&&st.chain!=='none'&&st.chain!=='bird')?canv(st.chain):null,mxstrip:st.bg==='matrix'?buildMatrixStrip(id):null,
+    chuteCol:(st.bg==='skydive'&&rec.recolor.bg)?`hsl(${(rec.recolor.bg.steps*22.5)|0} 68% 55%)`:null};  // cached cig + chain + matrix strip + seeded parachute colourway
+}
+
+// ---- FILTER · SORT · PAGINATE ----
+const F={sort:'id'}; let view=META, page=0;
+function matchesF(m){ const s=m.rec.traits, fx=m.rec.fx;
+  for(const k of ['mon','cig','body','chain','head','bg']){ if(F[k]&&F[k]!=='*'&&s[k]!==F[k]) return false; }
+  if(F.grillz&&F.grillz!=='*'&&s.grillz!==F.grillz) return false;
+  if(F.coin&&F.coin!=='*'&&s.coin!==F.coin) return false;
+  if(F.ear&&F.ear!=='*'&&s.ear!==F.ear) return false;
+  if(F.eyewear&&F.eyewear!=='*'&&s.eyewear!==F.eyewear) return false;
+  if(F.eyesSig&&F.eyesSig!=='*'&&fx.eyes.input!==F.eyesSig) return false;
+  if(F.eyesSens&&F.eyesSens!=='*'&&fx.eyes.sens!==F.eyesSens) return false;
+  if(F.rfx&&F.rfx!=='*'&&!rfxTags(m).includes(F.rfx)) return false;
+  return true; }
+function sortV(arr){ const k=F.sort||'id'; if(k==='id') return arr.slice().sort((a,b)=>a.id-b.id);
+  const key=m=> k==='eyesSig'?m.rec.fx.eyes.input : k==='eyesSens'?m.rec.fx.eyes.sens : m.rec.traits[k];
+  return arr.slice().sort((a,b)=> String(key(a)).localeCompare(String(key(b))) || a.id-b.id); }
+function renderPage(){ const grid=document.getElementById('grid'); grid.innerHTML=''; chars.length=0;   // drop prior page's canvases (GC) + DOM
+  const total=view.length, pages=Math.max(1,Math.ceil(total/PAGESZ)); page=Math.min(Math.max(0,page),pages-1);
+  const start=page*PAGESZ, slice=view.slice(start,start+PAGESZ);
+  renderPager(total,pages,start,slice.length); window.scrollTo(0,0);
+  let i=0; const CHUNK=6;   // build monkeys in small batches across animation frames -> the grid paints progressively, no single long stall
+  (function buildChunk(){ const end=Math.min(i+CHUNK,slice.length); for(;i<end;i++) chars.push(buildChar(slice[i]));
+    if(i<slice.length) requestAnimationFrame(buildChunk); else updateSpeech(); })(); }
+function applyF(){ view=sortV(META.filter(matchesF)); page=0; renderPage(); }
+
+function mkSelect(label,key,opts){ const d=document.createElement('div'); d.className='fctl'; const sid='f_'+key;
+  d.innerHTML=`<label for="${sid}">${label}</label>`; const sel=document.createElement('select'); sel.id=sid;
+  for(const [v,txt] of opts){ const o=document.createElement('option'); o.value=v; o.textContent=txt; sel.appendChild(o); }
+  sel.value=F[key]||opts[0][0]; sel.onchange=()=>{ F[key]=sel.value; applyF(); }; d.appendChild(sel); return d; }
+const slotOpts=slot=>[['*','Any'],...SPEC.slots[slot].map(([n])=>[n,n])];
+{ const fp=document.getElementById('filters');
+  const g1=document.createElement('div'); g1.className='fgroup';
+  const t1=document.createElement('span'); t1.className='ftitle'; t1.textContent='Traits'; g1.appendChild(t1);
+  g1.appendChild(mkSelect('Base','mon',slotOpts('mon'))); g1.appendChild(mkSelect('Body','body',slotOpts('body'))); g1.appendChild(mkSelect('Necklace','chain',slotOpts('chain')));
+  g1.appendChild(mkSelect('Head','head',slotOpts('head'))); g1.appendChild(mkSelect('Cigarette','cig',slotOpts('cig')));
+  g1.appendChild(mkSelect('Background','bg',slotOpts('bg')));
+  g1.appendChild(mkSelect('Grillz','grillz',[['*','Any'],['none','None'],['gold','Gold'],['vampire','Vampire'],['diamond','Diamond'],['chipped','Chipped']]));
+  g1.appendChild(mkSelect('Coin','coin',[['*','Any'],['none','None'],['coin','$CIGGIE coins'],['snow','Snow']]));
+  g1.appendChild(mkSelect('Earrings','ear',[['*','Any'],['none','None'],['ruby','Ruby'],['sapphire','Sapphire'],['emerald','Emerald'],['gold','Gold'],['diamond','Diamond'],['amethyst','Amethyst']]));
+  g1.appendChild(mkSelect('Eyewear','eyewear',[['*','Any'],['none','None'],['patch','Eye patch']])); fp.appendChild(g1);
+  const g2=document.createElement('div'); g2.className='fgroup';
+  const t2=document.createElement('span'); t2.className='ftitle'; t2.textContent='Reactivity'; g2.appendChild(t2);
+  g2.appendChild(mkSelect('Reactive FX','rfx',[['*','Any'],['coin','$CIGGIE coin rain'],['snow','Snowfall'],['rack','Officer ribbon rack'],['ticker','Live ticker'],['neon_tube','Neon tube'],['clock','Clock hands'],['bird','Bird perch'],['bib','BBQ bib'],['satellite','Satellite'],['halo_horns','Halo / Horns'],['tophat','Top hat'],['sombrero','Sombrero band'],['crown','Crown (gems)'],['crown_silver','Silver crown'],['xmas','Elf / Santa'],['patch','Eye patch (captain)']]));
+  g2.appendChild(mkSelect('Eyes signal','eyesSig',[['*','Any'],['xrd','$XRD'],['early','$EARLY'],['ciggie','$CIGGIE'],['oci','$OCI']]));
+  g2.appendChild(mkSelect('Eyes sensitivity','eyesSens',[['*','Any'],['hair','Hair-trigger'],['normal','Normal'],['stoic','Stoic']]));
+  g2.appendChild(mkSelect('Sort by','sort',[['id','Token ID'],['mon','Base'],['body','Body'],['chain','Necklace'],['bg','Background'],['head','Head'],['cig','Cigarette'],['eyesSig','Eyes signal'],['eyesSens','Eyes sensitivity']]));
+  const rst=document.createElement('button'); rst.className='fbtn'; rst.textContent='Reset';
+  rst.onclick=()=>{ for(const k in F)delete F[k]; F.sort='id'; document.querySelectorAll('#filters select').forEach(s=>{ const k=s.id.slice(2); s.value=(k==='sort')?'id':'*'; }); applyF(); };
+  g2.appendChild(rst); fp.appendChild(g2); }
+function renderPager(total,pages,start,shown){ const build=p=>{ p.innerHTML='';
+    const prev=document.createElement('button'); prev.className='pbtn'; prev.textContent='‹ Prev'; prev.disabled=page<=0; prev.onclick=()=>{page--;renderPage();}; p.appendChild(prev);
+    for(let i=0;i<pages;i++){ const b=document.createElement('button'); b.className='pbtn'+(i===page?' on':''); b.textContent=i+1; b.onclick=()=>{page=i;renderPage();}; p.appendChild(b); }
+    const next=document.createElement('button'); next.className='pbtn'; next.textContent='Next ›'; next.disabled=page>=pages-1; next.onclick=()=>{page++;renderPage();}; p.appendChild(next);
+    const info=document.createElement('span'); info.className='pinfo'; info.textContent=` ${total?start+1:0}–${start+shown} of ${total} monkeys`; p.appendChild(info); };
+  build(document.getElementById('pager')); build(document.getElementById('pager2')); }
+applyF();
+// load speech AFTER the art is up — non-blocking, so slow/failed talk assets never stop the monkeys rendering
+// defer the 575 KB speech model until the browser is IDLE — the grid is fully interactive first, speech fills in after
+const loadTalk=()=>import('./talk/decoder.mjs?v=14').then(async m=>{ TALK={decode:m.decode, doc:m.parse(await bytesOf('./talk/ciggie.loomtalk?v='+VER))}; updateSpeech(); }).catch(e=>console.warn('talk load failed:',e));
+(window.requestIdleCallback||(f=>setTimeout(f,800)))(loadTalk);
+
+const AN={eyeL:[105,107],eyeR:[151,107],ember:[191,168],top:[124,18],center:[124,116],feet:[124,205],clock:[136,226],birdpiv:[124,176],chirp:[152,214],drop:[156,164],bibsplat:[150,205]};
+function spr(ctx,bm,cx,cy,size,alpha=1,rot=0){ ctx.save(); ctx.globalAlpha=alpha; ctx.translate(cx,cy); if(rot)ctx.rotate(rot); ctx.drawImage(bm,-size/2,-size/2,size,size); ctx.restore(); }
+// OFFICER ribbon rack: rows of service-ribbon bars on the left chest; row count grows with bullishness (more medals when pumping).
+const RIB=['#b01e28','#24407e','#d2aa28','#246e3c','#d6d6da','#7a2878','#c8601e','#2e7a96','#8a1430'];
+function drawRibbonRack(ctx,s,id,dy){ const rows=1+Math.max(0,Math.round(s*4));   // senti -1..1 -> 1 row (bearish/flat) .. 5 rows (max bull)
+  const bw=8,bh=4,gx=1,gy=1,cols=3,x0=154,ybot=224+dy;   // wearer's left breast (viewer's right) — the clean navy chest panel
+  for(let r=0;r<rows;r++){ const y=ybot-r*(bh+gy);
+    for(let c=0;c<cols;c++){ const x=x0+c*(bw+gx), sd=h32('rib'+id+'_'+r+'_'+c);
+      ctx.fillStyle='#1b1512'; ctx.fillRect(x,y,bw,bh);                       // dark border
+      ctx.fillStyle=RIB[sd%RIB.length]; ctx.fillRect(x+1,y+1,bw-2,bh-2);      // ribbon colour
+      if((sd>>8)&1){ ctx.fillStyle=RIB[(sd>>4)%RIB.length]; ctx.fillRect(x+(bw>>1),y+1,1,bh-2); }   // some bars get a centre stripe
+      ctx.fillStyle='rgba(255,255,255,0.22)'; ctx.fillRect(x+1,y+1,bw-2,1); } }   // top sheen
+}
+function flame(ctx,x,y,sz,seed,tt){ const fl=0.72+0.28*Math.sin(tt*0.6+seed), h=sz*(1.5+0.5*Math.sin(tt*0.5+seed*1.7));   // tiny flickering flame (additive)
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  let g=ctx.createRadialGradient(x,y-h*0.3,0,x,y-h*0.3,sz*1.4); g.addColorStop(0,`rgba(255,170,40,${0.9*fl})`); g.addColorStop(1,'rgba(255,70,0,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(x,y-h*0.3,sz*0.9,h,0,0,7); ctx.fill();
+  ctx.fillStyle=`rgba(255,245,205,${0.9*fl})`; ctx.beginPath(); ctx.ellipse(x,y-h*0.3,sz*0.42,h*0.55,0,0,7); ctx.fill(); ctx.restore(); }
+function drawSat(ctx,cx,cy,rot,sc,tt){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(rot); ctx.scale(sc,sc);   // little satellite (solar panels + body + dish + blinker)
+  ctx.fillStyle='#2b6cd4'; ctx.strokeStyle='#163f80'; ctx.lineWidth=1;   // solar wings
+  for(const px of [-19,9]){ ctx.fillRect(px,-3,10,6); ctx.strokeRect(px,-3,10,6); ctx.beginPath(); ctx.moveTo(px+3.3,-3);ctx.lineTo(px+3.3,3); ctx.moveTo(px+6.6,-3);ctx.lineTo(px+6.6,3); ctx.stroke(); }
+  ctx.strokeStyle='#8891a2'; ctx.beginPath(); ctx.moveTo(-9,0);ctx.lineTo(-6,0); ctx.moveTo(6,0);ctx.lineTo(9,0); ctx.stroke();   // struts
+  ctx.fillStyle='#cdd3dc'; ctx.fillRect(-6,-5,12,10); ctx.strokeStyle='#79828f'; ctx.strokeRect(-6,-5,12,10);   // body
+  ctx.fillStyle='#eef1f6'; ctx.beginPath(); ctx.ellipse(0,-8,4,3,0,0,7); ctx.fill(); ctx.strokeStyle='#9aa3b2'; ctx.beginPath(); ctx.moveTo(0,-5);ctx.lineTo(0,-7); ctx.stroke();   // dish
+  const bl=0.35+0.65*Math.abs(Math.sin(tt*0.3)); ctx.fillStyle=`rgba(255,70,70,${bl})`; ctx.beginPath(); ctx.arc(4,-4,1.6,0,7); ctx.fill(); ctx.restore(); }
+function glowEye(ctx,x,y,col,mag,tt,ph){ ctx.save(); ctx.globalCompositeOperation='lighter';
+  const puls=0.82+0.18*Math.sin(tt*(0.1+mag*0.5)+ph), R=8+mag*9, al=(0.4+0.6*mag)*puls;
+  const g=ctx.createRadialGradient(x,y,0,x,y,R); g.addColorStop(0,`rgba(255,255,255,${Math.min(1,al*1.15)})`);
+  g.addColorStop(0.4,`rgba(${col[0]},${col[1]},${col[2]},${al})`); g.addColorStop(1,`rgba(${col[0]},${col[1]},${col[2]},0)`);
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,R,0,7); ctx.fill(); ctx.restore(); }
+// ---- reactive BACKGROUNDS (drawn behind the monkey) ----
+function bgMatrix(ctx,t,ch,I){ ctx.fillStyle='#020604'; ctx.fillRect(0,0,T,T);   // (1) Matrix rain: scroll the token's tilemap strip (built from the shared alphabet); fall speed ∝ drive
+  const s=ch.mxstrip; if(!s) return; const sc=(((t*(0.35+I*1.8)*MXM.tileDim)%s.sh)+s.sh)%s.sh;
+  ctx.drawImage(s.c,0,sc-s.sh); ctx.drawImage(s.c,0,sc); }
+const RBOW=['#ff4b4b','#ff9e3d','#ffe14b','#5ed84b','#4ba3ff','#6a5bff','#b45bff'];
+function bgRainbow(ctx,t,ph,I){ const sky=ctx.createLinearGradient(0,0,0,T); sky.addColorStop(0,'#241f47'); sky.addColorStop(1,'#4b4380');   // (2) PROCEDURAL rainbow: concentric colour arcs swept by cos(t) — a pure fn of (x,t), no baked frames (was 142 KB of loom)
+  ctx.fillStyle=sky; ctx.fillRect(0,0,T,T);
+  const nR=1+Math.round(I*2), prog=0.5-0.5*Math.cos(t*0.018+ph), a0=-0.52*Math.PI, a1=a0+prog*1.06*Math.PI; ctx.lineCap='round';
+  for(let r=0;r<nR;r++){ const base=150+r*50; for(let b=0;b<7;b++){ ctx.beginPath(); ctx.lineWidth=6; ctx.strokeStyle=RBOW[b]; ctx.arc(8,242,base+b*7,a0,a1); ctx.stroke(); } } }
+const BSPOTS=[[38,60],[216,78],[232,150]];   // hang points in visible tree areas (corners/right, clear of the monkey)
+function bgBanana(ctx,t,ph,I){ ctx.drawImage(BG.bg_banana,0,0,T,T);              // (3) banana tree + bunches that sway; amplitude ∝ drive (wind)
+  const wind=Math.sin(t*(0.05+I*0.13)+ph)*(0.1+I*0.6);
+  BSPOTS.forEach((s,i)=>{ ctx.save(); ctx.translate(s[0],s[1]); ctx.rotate(wind*(1+i*0.25)); ctx.drawImage(FX.banana,-26,-8,52,60); ctx.restore(); }); }
+function bgMoon(ctx,t,ph,I){                                            // (6) night sky; the moon GROWS and morphs into a giant $CIGGIE coin as drive rises
+  const sky=ctx.createLinearGradient(0,0,0,T); sky.addColorStop(0,'#070a20'); sky.addColorStop(0.6,'#0f1430'); sky.addColorStop(1,'#1a1330');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,T,T);
+  const ox=66, oy=64, R=20+I*74;                                       // orb centre (upper-left, off the monkey) + radius (small moon -> giant coin)
+  for(let i=0;i<64;i++){ const sd=h32('star'+ph+'_'+i), x=sd%256, y=(sd>>>8)%176;   // stars (skip any under the orb)
+    if(Math.hypot(x-ox,y-oy)<R+2) continue;
+    ctx.globalAlpha=(0.35+0.55*Math.abs(Math.sin(t*0.05+i)))*0.9; ctx.fillStyle='#e2e8ff';
+    const s=(sd%6===0)?2:1; ctx.fillRect(x,y,s,s); }
+  ctx.globalAlpha=1;
+  const L=(a,b)=>Math.round(a+(b-a)*I), cr=L(216,255), cg=L(220,205), cb=L(232,60);  // pale moon -> gold coin
+  let gl=ctx.createRadialGradient(ox,oy,R*0.5,ox,oy,R*1.7);            // soft halo
+  gl.addColorStop(0,`rgba(${cr},${cg},${cb},${0.28+0.4*I})`); gl.addColorStop(1,`rgba(${cr},${cg},${cb},0)`);
+  ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(ox,oy,R*1.7,0,7); ctx.fill();
+  let dg=ctx.createRadialGradient(ox-R*0.3,oy-R*0.3,R*0.1,ox,oy,R);    // orb disc, lit from upper-left
+  dg.addColorStop(0,`rgb(${Math.min(255,cr+16)},${Math.min(255,cg+14)},${Math.min(255,cb+40)})`); dg.addColorStop(1,`rgb(${cr-26},${cg-26},${Math.max(0,cb-20)})`);
+  ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(ox,oy,R,0,7); ctx.fill();
+  if(I<0.6){ ctx.globalAlpha=(1-I/0.6)*0.5; ctx.fillStyle='#9aa0b6';  // moon craters fade out as it turns to gold
+    [[-0.3,-0.2,0.18],[0.25,0.1,0.13],[0.05,0.35,0.1]].forEach(c=>{ctx.beginPath();ctx.arc(ox+c[0]*R,oy+c[1]*R,c[2]*R,0,7);ctx.fill();}); ctx.globalAlpha=1; }
+  const ci=Math.max(0,Math.min(1,(I-0.3)/0.7));                        // "coin-ness" fades IN the rim + cigarette emblem
+  if(ci>0){ ctx.save(); ctx.globalAlpha=ci;
+    ctx.lineWidth=Math.max(2,R*0.07); ctx.strokeStyle='rgba(185,135,20,1)'; ctx.beginPath(); ctx.arc(ox,oy,R*0.9,0,7); ctx.stroke();
+    ctx.strokeStyle='rgba(150,105,10,0.9)'; ctx.lineWidth=1.4;         // reeded edge ticks
+    for(let a=0;a<48;a++){ const an=a/48*Math.PI*2; ctx.beginPath(); ctx.moveTo(ox+Math.cos(an)*R*0.92,oy+Math.sin(an)*R*0.92); ctx.lineTo(ox+Math.cos(an)*R,oy+Math.sin(an)*R); ctx.stroke(); }
+    const cl=R*1.1, cw=R*0.3, bx=ox-cl*0.5, yc=oy, bodyL=cl*0.78;      // cigarette emblem (brand mark), scales with the coin
+    ctx.fillStyle='#f3f0e6'; ctx.fillRect(bx,yc-cw/2,bodyL,cw);
+    ctx.fillStyle='#c9a24e'; ctx.fillRect(bx,yc-cw/2,bodyL*0.22,cw);   // filter
+    ctx.fillStyle='#8a6a2a'; ctx.fillRect(bx+bodyL*0.22,yc-cw/2,2,cw);
+    ctx.fillStyle='#ff7a1a'; ctx.beginPath(); ctx.arc(bx+bodyL+cw*0.2,yc,cw*0.52,0,7); ctx.fill();   // lit ember
+    ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.arc(bx+bodyL+cw*0.2,yc,cw*0.26,0,7); ctx.fill();
+    ctx.fillStyle='rgba(120,80,10,0.9)'; ctx.font=`bold ${Math.round(R*0.34)}px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('$',ox,oy-R*0.52);                                    // $ above the cig
+    ctx.restore(); } }
+// (7) SKYDIVE — the monkey hangs from a parachute, plummeting through the sky. Clouds + wind streak UPWARD
+// (you fall past them); fall speed, wind density and canopy billow all rise with drive.
+function drawCloud(ctx,cx,cy,r,a){ ctx.save(); ctx.globalAlpha=a; ctx.fillStyle='#ffffff';
+  for(const o of [[-r*0.85,5,r*0.62],[-r*0.3,0,r*0.82],[r*0.4,2,r*0.72],[r*0.95,6,r*0.55],[0,7,r*0.6]])
+    { ctx.beginPath(); ctx.ellipse(cx+o[0],cy+o[1],o[2],o[2]*0.7,0,0,7); ctx.fill(); }
+  ctx.restore(); }
+function drawParachute(ctx,t,ph,I,pcol){
+  const base=128, sway=Math.sin(t*(0.035+I*0.05)+ph)*(5+I*4), apex=base+sway;        // canopy swings; sway grows with drive
+  const topY=5, domeH=38, baseY=topY+domeH, halfW=56+Math.sin(t*0.06+ph)*(1.5+I*2);  // canopy billows (width breathes)
+  const L=apex-halfW, R=apex+halfW, gores=6, cols=[pcol||'#d8384a','#f4f4f4'];       // alternating seeded-colour / white gores
+  for(let g=0;g<gores;g++){ const x0=L+2*halfW*g/gores, x1=L+2*halfW*(g+1)/gores;    // alternating red/white gore panels
+    ctx.fillStyle=cols[g%2]; ctx.beginPath();
+    ctx.moveTo(x0,baseY); ctx.quadraticCurveTo((x0+x1)/2,baseY+8,x1,baseY);          // scalloped hem
+    ctx.quadraticCurveTo((x1+apex)/2,topY+3,apex,topY);                              // seam up to apex
+    ctx.quadraticCurveTo((x0+apex)/2,topY+3,x0,baseY); ctx.closePath(); ctx.fill(); }
+  ctx.strokeStyle='rgba(0,0,0,0.22)'; ctx.lineWidth=1.3;                             // dome rim highlight
+  ctx.beginPath(); ctx.moveTo(L,baseY); ctx.quadraticCurveTo(apex,topY-9,R,baseY); ctx.stroke();
+  ctx.strokeStyle='rgba(35,38,48,0.6)'; ctx.lineWidth=1;                             // suspension lines fan to the shoulders
+  const sh=[[100,182],[156,182]], hem=[L, L+2*halfW*0.33, apex, R-2*halfW*0.33, R];  // (behind the monkey → reads as "hanging")
+  ctx.beginPath(); for(const hx of hem){ const s=hx<apex?sh[0]:sh[1]; ctx.moveTo(hx,baseY); ctx.lineTo(s[0],s[1]); } ctx.stroke();
+}
+function bgSkydive(ctx,t,ph,I,pcol){
+  const sky=ctx.createLinearGradient(0,0,0,T); sky.addColorStop(0,'#1f62c4'); sky.addColorStop(0.5,'#4f97e6'); sky.addColorStop(1,'#d2eaff');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,T,T);
+  let sg=ctx.createRadialGradient(44,32,3,44,32,76); sg.addColorStop(0,'rgba(255,250,214,0.9)'); sg.addColorStop(1,'rgba(255,250,214,0)');
+  ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(44,32,76,0,7); ctx.fill();              // sun glow upper-left
+  const spd=0.5+I*2.8;                                                               // fall speed ∝ drive
+  for(let b=0;b<2;b++){ const n=4, depth=b?1:0.5, sc=b?1:0.68, span=T+80;            // two parallax cloud bands scrolling UP
+    for(let i=0;i<n;i++){ const sd=h32('cl'+ph+'_'+b+'_'+i), cx=sd%T, r=(15+sd%13)*sc;
+      const y=((((sd>>>8)%span) - t*spd*depth)%span+span)%span - 40; drawCloud(ctx,cx,y,r,b?0.9:0.5); } }
+  if(I>0.04){ ctx.save(); ctx.strokeStyle='#ffffff'; const m=4+Math.round(I*16), per=T+50;   // wind speed streaks shooting up
+    for(let i=0;i<m;i++){ const sd=h32('ws'+ph+'_'+i), x=sd%T, len=8+I*26, y=((((sd>>>7)%per) - t*(2.5+I*6))%per+per)%per;
+      ctx.globalAlpha=0.2+0.5*I; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+len); ctx.stroke(); }
+    ctx.restore(); }
+  drawParachute(ctx,t,ph,I,pcol);
+}
+
+// TRON suit: the neon is the garment's OWN silhouette — outline + concentric contours (precomputed in TRONedge)
+// hugging the body. Colour swings cyan(bull)<->orange(bear) by sentiment; an energy band runs down the piping,
+// speed + bloom grow with drive.
+function tronColor(s){ const t=(s+1)/2; return [Math.round(255-201*t), Math.round(138+92*t), Math.round(30+225*t)]; }   // bear orange <-> bull cyan
+function drawTron(ctx,t,ph,drv,sent,dy){ if(!TRONedge) return; const col=tronColor(sent), speed=0.006+drv*0.02;
+  ngx.globalCompositeOperation='source-over'; ngx.clearRect(0,0,T,T);
+  ngx.drawImage(TRONedge,0,dy);                                                    // white piping tracing the suit silhouette
+  ngx.globalCompositeOperation='source-in';                                        // colourise the piping + run an energy band down it
+  const g=ngx.createLinearGradient(0,170+dy,0,256+dy);
+  const dim=`rgb(${col[0]*0.5|0},${col[1]*0.5|0},${col[2]*0.5|0})`, hot=`rgb(${Math.min(255,col[0]+120)},${Math.min(255,col[1]+120)},${Math.min(255,col[2]+120)})`;
+  const s=((t*speed+ph*0.12)%1+1)%1, w=0.1, pts=[[0,dim],[1,dim],[s,hot]];
+  if(s-w>0)pts.push([s-w,dim]); if(s+w<1)pts.push([s+w,dim]);
+  pts.sort((a,b)=>a[0]-b[0]); let last=-1; for(const [p,c] of pts){ const q=Math.min(1,Math.max(0,p)); if(q>last+1e-4){ g.addColorStop(q,c); last=q; } }
+  ngx.fillStyle=g; ngx.fillRect(0,0,T,T);
+  ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.shadowColor=`rgba(${col[0]},${col[1]},${col[2]},0.95)`; ctx.shadowBlur=5+drv*7;
+  ctx.drawImage(NG,0,0); ctx.globalAlpha=0.8; ctx.drawImage(NG,0,0); ctx.restore(); }
+
+// (9) RADIX — XRD tokens spinning in place over a shifting neon "Radix gradient" backdrop. Spin speed,
+// colour-shift and glow all quicken with drive.
+const XRD_PATH = new Path2D('M3 13.0614V10.9438H5.77411C6.02824 10.9438 6.26646 11.055 6.4147 11.2613L9.58588 15.7508L14.4353 5.05671C14.4981 4.91829 14.5993 4.80081 14.7271 4.71822C14.8546 4.63563 15.0033 4.59142 15.1553 4.59082H21V6.70848H15.9971L10.4542 19.0967C10.4161 19.1812 10.3567 19.2543 10.2816 19.3087C10.2065 19.363 10.1184 19.3968 10.0263 19.4064C9.93411 19.4161 9.84097 19.4014 9.75623 19.3637C9.67149 19.3261 9.59812 19.2668 9.54351 19.192L5.31882 13.0614H3Z');   // the real Radix/XRD mark — a green √ (radical / "root"), from web3icons (viewBox 0..24)
+function rimPath(ctx,xl,xr,fw,r){ ctx.beginPath();          // coin silhouette = capsule spanning the two face centres (gives real thickness)
+  ctx.ellipse(xr,0,fw,r,0,-Math.PI/2,Math.PI/2,false); ctx.lineTo(xl,r);
+  ctx.ellipse(xl,0,fw,r,0,Math.PI/2,Math.PI*1.5,false); ctx.closePath(); }
+function drawRadixToken(ctx,cx,cy,r,spin,I){ const cosT=Math.cos(spin), sinT=Math.sin(spin), fw=Math.abs(cosT)*r;   // face half-width (→0 edge-on)
+  const th=r*0.36, dir=sinT>=0?1:-1, d=th*Math.abs(sinT), xf=d*dir, xb=-d*dir, xl=Math.min(xf,xb), xr=Math.max(xf,xb);   // front/back faces separate by the thickness as it turns
+  ctx.save(); ctx.translate(cx,cy);
+  ctx.shadowColor='rgba(60,207,141,0.5)'; ctx.shadowBlur=5+I*7;
+  const rim=ctx.createLinearGradient(xl-fw,0,xr+fw,0); rim.addColorStop(0,'#06208f'); rim.addColorStop(0.5,'#2f6ad8'); rim.addColorStop(1,'#06208f');   // metallic blue EDGE band
+  rimPath(ctx,xl,xr,fw,r); ctx.fillStyle=rim; ctx.fill(); ctx.shadowBlur=0;
+  ctx.save(); rimPath(ctx,xl,xr,fw,r); ctx.clip();                         // reeded milling on the exposed rim (sells it as a coin edge)
+  ctx.strokeStyle='rgba(255,255,255,0.16)'; ctx.lineWidth=1;
+  for(let x=Math.floor(xl-fw); x<=Math.ceil(xr+fw); x+=2){ ctx.beginPath(); ctx.moveTo(x,-r+1); ctx.lineTo(x,r-1); ctx.stroke(); }
+  ctx.restore();
+  ctx.save(); ctx.translate(xf,0);                                         // FRONT face on top (leaves the rim crescent showing on the far side)
+  ctx.fillStyle='#0A2CC0'; ctx.beginPath(); ctx.ellipse(0,0,fw,r,0,0,7); ctx.fill();
+  ctx.strokeStyle='rgba(150,190,255,0.85)'; ctx.lineWidth=1.1; ctx.beginPath(); ctx.ellipse(0,0,fw,r,0,0,7); ctx.stroke();
+  const sc=r/10.5; ctx.save(); ctx.scale((cosT<0?-1:1)*Math.max(0.05,Math.abs(cosT)),1); ctx.scale(sc,sc); ctx.translate(-12,-12);
+  ctx.fillStyle='#3CCF8D'; ctx.fill(XRD_PATH); ctx.restore();
+  ctx.restore(); ctx.restore(); }
+const RXSPOTS=[[40,52,15],[214,58,14],[228,150,12],[34,150,12],[128,28,13]];   // hang points clear of the monkey (top + sides)
+function bgRadix(ctx,t,ph,I){ const p=t*(0.012+I*0.05)+ph;                      // shifting neon Radix-gradient backdrop
+  const hues=[200,186,162,150,210,266], g=ctx.createLinearGradient(0,0,T,T);
+  for(let k=0;k<=5;k++){ const s=k/5, h=hues[k%hues.length]+26*Math.sin(p*2+s*6); g.addColorStop(Math.min(1,s),`hsl(${h|0} 86% ${42+12*Math.sin(p+s*3)|0}%)`); }
+  ctx.fillStyle=g; ctx.fillRect(0,0,T,T);
+  for(let k=0;k<2;k++){ const gx=128+Math.cos(p*1.3+k*2.1)*92, gy=128+Math.sin(p*1.1+k*3)*92, hue=(k?288:164)+40*Math.sin(p*2+k);   // drifting neon glows for depth
+    const rg=ctx.createRadialGradient(gx,gy,0,gx,gy,118); rg.addColorStop(0,`hsla(${hue|0},92%,62%,0.42)`); rg.addColorStop(1,'hsla(0,0%,0%,0)'); ctx.fillStyle=rg; ctx.fillRect(0,0,T,T); }
+  const spd=0.03+I*0.14; for(let i=0;i<RXSPOTS.length;i++){ const s=RXSPOTS[i], phz=(h32('rx'+ph+'_'+i)%628)/100; drawRadixToken(ctx,s[0],s[1],s[2],t*spd+phz,I); }
+}
+
+let t0=performance.now();
+function frame(){
+  const t=(performance.now()-t0)/16.7, bob=[0,-1,-2,-2,-1,0,1,2,2,1];
+  for(const ch of chars){ const ctx=ch.ctx; ctx.clearRect(0,0,T,T);
+    const dy=bob[Math.floor(t/3+ch.phase)%bob.length];
+    if(ch.st.bg!=='none'){ const I=drive(ch.fx.bg);
+      if(ch.st.bg==='matrix')bgMatrix(ctx,t,ch,I); else if(ch.st.bg==='rainbow')bgRainbow(ctx,t,ch.phase,I); else if(ch.st.bg==='banana')bgBanana(ctx,t,ch.phase,I); else if(ch.st.bg==='moon')bgMoon(ctx,t,ch.phase,I); else if(ch.st.bg==='skydive')bgSkydive(ctx,t,ch.phase,I,ch.chuteCol); else if(ch.st.bg==='radix')bgRadix(ctx,t,ch.phase,I);
+      else if(ch.st.bg==='casino'){ ctx.drawImage(BG.bg_casino,0,0,T,T);   // casino floor + a big field of card-count numbers BEHIND the monkey
+        const nn=16+Math.round(I*28); ctx.save(); ctx.font='bold 15px monospace'; ctx.textAlign='center'; ctx.lineJoin='round';
+        for(let i=0;i<nn;i++){const sd=h32('cc'+ch.id+'_'+i), p=((t*(0.006+I*0.014)+(sd%1000)/1000))%1, x=10+(sd%236), y=252-p*252, g=CN[(sd>>>4)%CN.length];
+          ctx.globalAlpha=(0.85-p*0.45)*(0.55+0.45*I); ctx.strokeStyle='#000'; ctx.lineWidth=3.2; ctx.strokeText(g,x,y);
+          ctx.fillStyle=(sd&1)?'#ffe27a':'#eaf6ff'; ctx.fillText(g,x,y);} ctx.restore(); }
+      else if(ch.st.bg==='rocket'){ ctx.drawImage(BG.bg_launchpad,0,0,T,T);   // rocket on the pad (right, clear of the monkey): static -> smoking -> ignite + LIFT OFF, by drive
+        const rx=222, rise=I>0.5?(I-0.5)/0.5:0, ry=176-rise*rise*350;
+        if(I>0.18){ const n=2+Math.round(I*4); for(let i=0;i<n;i++){const p=((t*(0.5+I*1.4)+ch.phase+i*17)%100)/100; spr(ctx,FX.smoke_puff,rx+((h32('rk'+ch.id+i)%24)-12)*(0.5+p),ry+34+p*(18+I*30),12+p*(10+I*20),(1-p)*0.7);} }
+        if(I>0.45){ const fl=0.6+0.4*Math.sin(t*0.7+ch.phase); spr(ctx,FX.fireball,rx,ry+38,18+rise*26,0.85*fl); }
+        spr(ctx,FX.rocket,rx,ry,58); } }
+    // WHITESHIRT morph: wife-beater -> white tee -> white polo by drive (rebuild static so it stays UNDER necklace)
+    if(ch.st.body==='whiteshirt'){ const dv=drive(ch.fx.body), s=dv<0.34?'wifebeater':dv<0.67?'white_tee':'white_polo'; if(s!==ch.shirt){ ch.shirt=s; ch.build(s); } }
+    ctx.drawImage(ch.static,0,dy);
+    if(ch.st.body==='officer'||ch.st.body==='officer_white'){ drawRibbonRack(ctx,senti(ch.fx.rack),ch.id,dy);   // reactive medal ribbons — more bars when bullish
+      if(ch.chainc) ctx.drawImage(ch.chainc,0,dy); }   // re-lay the necklace OVER the rack (static chain was baked under static); reactive overlays below already draw on top → necklace always covers the rack, never vice versa
+    // TIE-DYE shirt: dynamically rotate its colours (hue blend, masked to the shirt); pace ∝ drive
+    if(ch.st.body==='tiedye'){ const I=drive(ch.fx.body), hue=(t*(1.6+I*6)+ch.phase*45)%360;   // dynamic colour wash over the real tie-dye art (pace ∝ drive)
+      ngx.globalCompositeOperation='source-over'; ngx.clearRect(0,0,T,T);
+      const g=ngx.createLinearGradient(40,176,216,256);                                          // rotating rainbow gradient
+      for(let s=0;s<=1.0001;s+=1/6) g.addColorStop(s,`hsl(${(((hue+s*300)%360)|0)} 95% 56%)`);
+      ngx.fillStyle=g; ngx.fillRect(0,0,T,T);
+      ngx.globalCompositeOperation='destination-in'; ngx.drawImage(TDcanv,0,dy);                  // clip the wash to the shirt shape
+      ctx.save(); ctx.globalCompositeOperation='source-atop'; ctx.globalAlpha=0.5; ctx.drawImage(NG,0,0); ctx.restore();   // source-atop = universally-supported compositor; preserves shirt alpha, can't punch holes (unlike the 'hue' blend, which iOS Safari mis-renders)
+      if(ch.chainc) ctx.drawImage(ch.chainc,0,dy); }   // re-lay the CLEAN necklace static over the wash — source-atop tinted every opaque pixel in the shirt area incl. the ticker frame/clock/bib/cig-pendant; this restores them (reactive overlays still draw on top)
+    if(ch.st.body==='hypersuit'){ drawTron(ctx,t,ch.phase,drive(ch.fx.body),senti(ch.fx.body),dy);   // HYPERSUIT: pulsing neon circuit (cyan bull / orange bear), speed+bloom ∝ drive
+      if(ch.chainc) ctx.drawImage(ch.chainc,0,dy); }   // re-lay the necklace (clock/chain/ticker) OVER the neon so the pendant isn't buried by the suit glow
+    // UNIVERSAL GLOWING EYES — colour + intensity by the token's seeded sentiment (glows through shades)
+    { const s=clamp(senti(ch.fx.eyes)*0.7+(ch.social||0)*0.3,-1,1), col=eyeColor(s), mag=Math.abs(s);   // mood = market sentiment (0.7) + wallet social vibe (0.3)
+      glowEye(ctx,AN.eyeL[0],AN.eyeL[1]+dy,col,mag,t,ch.phase); glowEye(ctx,AN.eyeR[0],AN.eyeR[1]+dy,col,mag,t,ch.phase+0.6); }
+    if(ch.st.eyewear==='patch'&&drive(ch.fx.eyewear)>=0.5) ctx.drawImage(EYEPATCH,0,dy);   // reactive Gemini eye patch (on when drive high) -> also prefixes the quote
+    // cigarette SMOKE — puffs rise from the ember, count ∝ volume drive
+    { const I=drive(ch.fx.smoke), n=1+Math.round(I*4);
+      for(let i=0;i<n;i++){const p=((t*(0.3+I*1.4)+ch.phase+i*19)%100)/100; spr(ctx,FX.smoke_puff,AN.ember[0]+6+Math.sin(p*6+i)*(4+I*8),AN.ember[1]+dy-p*(26+I*70),12+p*(8+I*20),(1-p)*(0.3+I*0.6));} }
+    // $CIGGIE COIN rain — falls when pumping (seeded)
+    if(ch.st.coin==='coin'){const I=drive(ch.fx.coin),n=Math.round(I*6); for(let i=0;i<n;i++){const p=((t*(0.4+I*1.3)+ch.phase+i*27)%100)/100; spr(ctx,FX.coin,AN.top[0]+((h32(ch.id+'c'+i)%210)-105),AN.top[1]+p*230,14+I*8,1-p*0.3);}}
+    else if(ch.st.coin==='snow'){const I=drive(ch.fx.coin),n=8+Math.round(I*22); ctx.save(); ctx.fillStyle='#fff';   // (coin) SNOW: procedural white flakes drifting down, sway + rate ∝ drive
+      for(let i=0;i<n;i++){const sd=h32(ch.id+'s'+i), p=(t*(0.10+I*0.28)+(sd%1000)/1000)%1, x=((sd>>>3)%256)+Math.sin(t*0.04+i*1.3)*7, y=p*256, r=1+((sd>>>9)%3);
+        ctx.globalAlpha=0.45+0.5*(((sd>>>5)%10)/10); ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();} ctx.restore();}
+    // NECKLACE reactivity
+    if(ch.st.chain==='neon_tube'){ const I=drive(ch.fx.neck);   // burning-man tube: a colour PATTERN chases along the tube + a travelling brightness wave + glow
+      ngx.globalCompositeOperation='source-over'; ngx.clearRect(0,0,T,T);
+      const hoff=(t*(1.5+I*5)+ch.phase*30), grad=ngx.createLinearGradient(30,0,226,0);   // multi-hue gradient across the tube
+      for(let s=0;s<=1.0001;s+=1/6) grad.addColorStop(s,`hsl(${(((s*720)+hoff*2)%360)|0} 100% 60%)`);
+      ngx.fillStyle=grad; ngx.fillRect(0,0,T,T);
+      ngx.globalCompositeOperation='source-atop';                                          // travelling brightness wave = pattern pulse (not the whole thing)
+      for(let x=0;x<T;x+=3){ const b=Math.pow(Math.max(0,Math.sin(x*0.09-(t*(0.18+I*0.5))+ch.phase)),1.6); ngx.fillStyle=`rgba(0,0,0,${(1-b)*0.8})`; ngx.fillRect(x,0,3,T); }
+      ngx.globalCompositeOperation='destination-in'; ngx.drawImage(NTcanv,0,dy);
+      ctx.save(); ctx.beginPath(); ctx.rect(0,160,T,T-160); ctx.clip();   // keep the glow BELOW the mouth (mouth is y155-157) — never tint the lips
+      ctx.shadowColor='rgba(150,230,255,0.95)'; ctx.shadowBlur=7; ctx.drawImage(NG,0,0); ctx.drawImage(NG,0,0); ctx.shadowBlur=0;   // glow/outline
+      ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.55; ctx.drawImage(NG,0,0); ctx.restore(); }
+    // CLOCK — animated hands (hour/minute/second); second hand speeds up with the necklace drive
+    if(ch.st.chain==='clock'){ const I=drive(ch.fx.neck), cx=AN.clock[0], cy=AN.clock[1]+dy, sp=1+I*7;
+      const hand=(ang,len,w,col)=>{ ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=w; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.sin(ang)*len,cy-Math.cos(ang)*len); ctx.stroke(); ctx.restore(); };
+      hand(t*0.004*sp,7,2.5,'#241609'); hand(t*0.05*sp,12,2,'#241609'); hand(t*0.22*sp,14,1.3,'#d02020');
+      ctx.fillStyle='#241609'; ctx.beginPath(); ctx.arc(cx,cy,2,0,7); ctx.fill(); }
+    if(ch.st.chain==='ticker'){ const up=G.ciggie>=0, sx=99, sy=212+dy, sw=62, sh=30, hot=up?'#3dff8a':'#ff5454';   // live $CIGGIE ticker: one scrolling line, colour by 24h %
+      ctx.save(); ctx.beginPath(); ctx.rect(sx,sy,sw,sh); ctx.clip();
+      ctx.fillStyle=up?'#04361a':'#360606'; ctx.fillRect(sx,sy,sw,sh);
+      ctx.fillStyle=hot; ctx.textBaseline='middle'; ctx.font='bold 11px monospace';
+      const msg=`$CIGGIE ${up?'▲ +':'▼ '}${G.ciggie}%    `, tw=ctx.measureText(msg).width, off=(t*0.7)%tw;   // $CIGGIE + arrow + % all on one scrolling line
+      for(let x=sx-off;x<sx+sw;x+=tw) ctx.fillText(msg,x+2,sy+sh/2);
+      ctx.restore(); }
+    // BIRD necklace — perch+bird sway from the chain; chirp notes pop out ∝ drive
+    if(ch.st.chain==='bird'){ const I=drive(ch.fx.neck), px=AN.birdpiv[0], py=AN.birdpiv[1]+dy, sway=Math.sin(t*(0.06+I*0.24)+ch.phase)*(0.06+I*0.2);
+      ctx.save(); ctx.translate(px,py); ctx.rotate(sway); ctx.translate(-px,-py); ctx.drawImage(BIRDcanv,0,dy); ctx.restore();
+      const nn=Math.round(I*3); ctx.save(); ctx.font='10px monospace'; ctx.fillStyle='#fff';
+      for(let i=0;i<nn;i++){const p=((t*(0.5+I)+ch.phase+i*37)%60)/60; ctx.globalAlpha=(1-p)*0.9; ctx.fillText('♪',AN.chirp[0]+i*7+Math.sin(p*6)*3,AN.chirp[1]+dy-p*26);} ctx.restore(); }
+    // BIB necklace — a drop of BBQ sauce falls from the mouth and splats on the bib (loops); drip rate ∝ drive
+    if(ch.st.chain==='bib'){ const I=drive(ch.fx.neck), per=90/(0.6+I*1.7), p=(t%per)/per, ox=AN.drop[0], oy=AN.drop[1]+dy, sx=AN.bibsplat[0], sy=AN.bibsplat[1]+dy;
+      ctx.save();
+      ctx.fillStyle='rgba(120,26,12,0.9)'; ctx.beginPath(); ctx.ellipse(sx,sy,6,4,0,0,7); ctx.fill();           // accumulated stain
+      ctx.fillStyle='rgba(158,44,20,0.85)'; ctx.beginPath(); ctx.ellipse(sx-3,sy-1,2.6,2,0,0,7); ctx.fill();
+      if(p<0.72){ const q=p/0.72, x=ox+(sx-ox)*q, y=oy+(sy-oy)*q*q;                                            // sauce drop falls (gravity)
+        ctx.fillStyle='#7a1e0e'; ctx.beginPath(); ctx.ellipse(x,y,2.7,4.4,0,0,7); ctx.fill(); }
+      else { const q=(p-0.72)/0.28; ctx.fillStyle=`rgba(122,26,12,${1-q*0.6})`;                                 // splash droplets burst up + arc down
+        for(let a=0;a<5;a++){const ang=0.6+a*0.4, rr=q*11; ctx.beginPath(); ctx.arc(sx+Math.cos(ang)*rr, sy-Math.sin(ang)*rr+q*q*11, 1.7,0,7); ctx.fill();} }
+      ctx.restore(); }
+    // NECKLACE sits BELOW the cigarette: the chain's static base is already under the cig, and the reactive necklace
+    // overlays above (neon/clock/ticker/bird/bib) draw over ch.static — so redraw the cig here to lift it back on top.
+    if(ch.st.chain!=='none') ctx.drawImage(ch.cigc,0,dy);
+    // HEAD: SOMBRERO design is STATIC, swapped by ledger band (like whiteshirt); HALO<->HORNS toggles on sentiment
+    if(ch.st.head==='sombrero'){ const dv=drive(ch.fx.head), idx=dv<0.25?0:dv<0.5?1:dv<0.75?2:3;
+      ctx.drawImage(SOMB4[idx],0,dy+HATDY); }
+    else if(ch.st.head==='halo_horns'){ const s=senti(ch.fx.head);
+      if(s>=0) ctx.drawImage(LC.halo,0,dy+Math.round(Math.sin(t*0.12)*1.5));
+      else { const I=Math.min(1,-s);                                   // bearish: horns shake FASTER + harder as it dumps, and sprout tiny flames
+        const tw=Math.round(Math.sin(t*(0.9+I*1.8)+ch.phase)*(1+I*4)); ctx.drawImage(LC.devil_horns,tw,dy+HATDY);
+        const n=Math.round(I*6), tips=[[80,32],[175,32]];              // more flames the harder they shake
+        for(let i=0;i<n;i++){ const tp=tips[i%2], sd=h32('fl'+ch.id+i), jx=(sd%7)-3;
+          flame(ctx, tp[0]+tw+jx, tp[1]+dy+HATDY-2-((i>>1)*3), 2.1+I*1.7, (sd%628)/100, t+(sd%50)); } } }
+    else if(ch.st.head==='satellite'){ const ext=drive(ch.fx.head);     // rises OUT of the head with drive; once fully extended it orbits/spins (speed ∝ drive)
+      const bx=128, by=53+dy, H=ext*38, topx=bx, topy=by-H;             // base anchored INTO the fur crown (y50) so the pole never detaches
+      ctx.fillStyle='#5b6472'; ctx.fillRect(bx-7,by-2,14,4); ctx.fillStyle='#39404c'; ctx.fillRect(bx-7,by,14,2);   // hatch on the head
+      if(H>1){ ctx.strokeStyle='#aeb6c2'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(topx,topy); ctx.stroke();   // telescoping mast
+        ctx.strokeStyle='#7c8694'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx-4,by-H*0.5); ctx.lineTo(bx+4,by-H*0.5); ctx.stroke(); }
+      if(ext>0.06){ const orb=Math.max(0,(ext-0.8)/0.2), a=t*(0.06+ext*0.26)+ch.phase, rx=17*orb, ry=7*orb;   // orbit radius+speed ramp in once near-full
+        drawSat(ctx, topx+Math.cos(a)*rx, topy+Math.sin(a)*ry, orb*a, 0.82+0.18*ext, t); } }
+    else if(ch.st.head==='tophat'){ const dv=drive(ch.fx.head), bands=[18,32,46,58], idx=dv<0.25?0:dv<0.5?1:dv<0.75?2:3, chh=bands[idx];   // short->medium->tall(Lincoln)->tallest by drive
+      const bx=128, brimY=56+dy, cw=52, cTop=brimY-chh;
+      if(idx===3){ ctx.save(); ctx.strokeStyle='#241812'; ctx.lineCap='round';   // tallest -> Honest Abe: chin-curtain beard + mole
+        ctx.lineWidth=15; ctx.beginPath(); ctx.arc(bx,132+dy,40,0.15*Math.PI,0.85*Math.PI); ctx.stroke();       // beard around the jaw (no moustache)
+        ctx.lineWidth=9; ctx.beginPath(); ctx.moveTo(92,116+dy); ctx.lineTo(96,150+dy); ctx.moveTo(164,116+dy); ctx.lineTo(160,150+dy); ctx.stroke();   // sideburns
+        ctx.fillStyle='#2e2016'; ctx.beginPath(); ctx.arc(150,139+dy,2.4,0,7); ctx.fill(); ctx.restore(); }      // cheek mole/freckle
+      ctx.fillStyle='#141419'; ctx.fillRect(bx-cw/2,cTop,cw,(brimY-cTop)+2);                                     // stovepipe crown
+      ctx.fillStyle='#2b2b35'; ctx.fillRect(bx-cw/2+3,cTop+2,4,(brimY-cTop));                                    // crown highlight
+      ctx.fillStyle='#7a1222'; ctx.fillRect(bx-cw/2,brimY-9,cw,6);                                               // hatband
+      ctx.fillStyle='#0d0d11'; ctx.beginPath(); ctx.ellipse(bx,brimY,47,7,0,0,7); ctx.fill(); }                 // brim
+    else if(ch.st.head==='crown'||ch.st.head==='crown_silver'){ ctx.drawImage(ch.st.head==='crown_silver'?CROWN_SILVER:CROWN,0,dy);   // CROWN gold/silver: the 5 gems light up + cycle colour reactively (speed + glow ∝ drive)
+      const I=drive(ch.fx.head), hue=(t*(1.4+I*7)+ch.phase*60)%360, pul=0.55+0.45*Math.sin(t*(0.18+I*0.6)+ch.phase);
+      ngx.globalCompositeOperation='source-over'; ngx.clearRect(0,0,T,T); ngx.fillStyle=`hsl(${hue|0} 100% 62%)`; ngx.fillRect(0,0,T,T);
+      ngx.globalCompositeOperation='destination-in'; ngx.drawImage(CROWNGEMS,0,0);   // keep only the gem pixels, now recoloured
+      ctx.drawImage(NG,0,dy);
+      ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.35+0.5*pul; ctx.shadowColor=`hsl(${hue|0} 100% 72%)`; ctx.shadowBlur=5+I*5; ctx.drawImage(NG,0,dy); ctx.restore(); }
+    else if(ch.st.head==='xmas'){ ctx.drawImage(senti(ch.fx.head)>=0?ELF:SANTA,0,dy); }   // toggles ELF (bullish) <-> SANTA (bearish) on sentiment
+    // EARRINGS (independent slot): 1-3 gem studs per ear, count grows with drive; gem colour by trait
+    if(ch.st.ear&&ch.st.ear!=='none'){ const col=GEMCOL[ch.st.ear]||'#fff', dv=drive(ch.fx.ear), n=dv<0.34?1:dv<0.67?2:3;
+      for(let i=0;i<n;i++){ drawEarring(ctx,EARL[i][0],EARL[i][1]+dy,col,t,ch.phase+i); drawEarring(ctx,EARR[i][0],EARR[i][1]+dy,col,t,ch.phase+i+9); } }   // +dy so they bob WITH the head
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+}catch(e){document.body.insertAdjacentHTML("beforeend","<pre style=\"color:#ff6b6b;padding:12px;white-space:pre-wrap;font:12px monospace\">PREVIEW ERROR: "+(e&&e.stack||e)+"</pre>");}})();
+</script></body></html>
