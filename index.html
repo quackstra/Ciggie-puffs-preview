@@ -29,6 +29,29 @@
   .fbtn,.pbtn{ background:#1b2130; color:#cdd3e0; border:1px solid #2a3142; border-radius:6px; padding:4px 9px; font:12px system-ui; cursor:pointer; }
   .fbtn:hover,.pbtn:hover{ background:#232b3d; } .pbtn.on{ background:#5b3fb0; border-color:#5b3fb0; color:#fff; } .pbtn:disabled{ opacity:.4; cursor:default; }
   .pager{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding:10px 22px; } .pinfo{ color:#8a93a6; font-size:12px; margin-left:8px; }
+  #pmodal{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;}
+  #pmodal .pback{position:absolute;inset:0;background:rgba(6,8,12,.82);}
+  #pmodal .pcard{position:relative;display:flex;gap:18px;max-width:780px;width:92vw;max-height:90vh;overflow:auto;background:#121620;border:1px solid #2a3450;border-radius:16px;padding:20px;}
+  #pmodal .pclose{position:absolute;top:10px;right:12px;background:#222a3a;color:#cdd3df;border:0;border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;}
+  #pmodal .pcol-l{flex:0 0 256px;}
+  #pmodal #pcanvas{width:256px;height:256px;image-rendering:pixelated;background:#0b0d12;border-radius:10px;display:block;}
+  #pmodal .pquote{margin-top:8px;font-style:italic;color:#e7e9ee;font-size:13px;text-align:center;min-height:18px;}
+  #pmodal .pcol-r{flex:1;min-width:0;}
+  #pmodal .pname-big{font-size:18px;font-weight:700;color:#fff;line-height:1.3;}
+  #pmodal .pname-big b{color:#6fe3b0;}
+  #pmodal .psub{font-size:11px;color:#8a93a6;margin:3px 0 8px;}
+  #pmodal .plore{font-size:12.5px;color:#c3c9d6;line-height:1.5;margin-bottom:10px;}
+  #pmodal .pstats{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:12px;color:#cdd3df;margin-bottom:4px;}
+  #pmodal .phd{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#6fe3b0;margin:12px 0 6px;border-top:1px solid #222a3a;padding-top:8px;}
+  #pmodal .rrow{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;}
+  #pmodal .rL{flex:1;min-width:0;color:#e7e9ee;}
+  #pmodal .rL .rin{display:block;color:#8a93a6;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #pmodal .rbar{flex:0 0 84px;height:8px;background:#222a3a;border-radius:4px;overflow:hidden;}
+  #pmodal .rfill{height:100%;transition:width .3s;}
+  #pmodal .rval{flex:0 0 34px;text-align:right;color:#cdd3df;font-size:11px;}
+  #pmodal .psocial{font-size:12px;color:#c3c9d6;margin-top:10px;}
+  .cell{cursor:pointer;} .cell:hover{border-color:#3a4870;}
+  @media(max-width:620px){#pmodal .pcard{flex-direction:column;}#pmodal .pcol-l{flex:none;margin:0 auto;}}
 </style></head><body>
 <header>
   <h1>Ciggie-Puffs — $CIGGIE ledger-reactive collection <span class="sub">(AI art · per-token seeded behaviour · every monkey reacts to the ledger)</span></h1>
@@ -1189,7 +1212,7 @@ const engine = window.Recipe;   // collection engine: spec + seed -> recipe
 const { resolve } = engine;
 const lzmaMod = window.LZMA;   // LZMA (.lzma alone) decoder — assets are xz-class compressed; browsers have no native xz
 const { decompressLZMA } = lzmaMod;
-const VER='20261003-stokenet'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
+const VER='20261003-profile'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
 const cb=p=>p+(p.includes('?')?'&':'?')+'v='+VER;
 async function bytesOf(p){ var _k=p.split('?')[0]; let raw = (AS&&AS[_k]) ? Uint8Array.from(atob(AS[_k]),c=>c.charCodeAt(0)) : new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer());
   if(raw.length>2 && raw[0]===0x1f && raw[1]===0x8b){ raw = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()); }   // gzip: inflate natively
@@ -1446,7 +1469,7 @@ function buildChar(m){ const id=m.id, rec=m.rec, st=rec.traits, fx=rec.fx;   // 
     if(st.head==='cap')ox.drawImage(rec.recolor.head&&recolorCap?recolorCap(rec.recolor.head.steps):canv('cap'),0,HATDY);   // baseball cap: 16 seeded colourways
     else if(st.head==='bucket_hat')ox.drawImage(rec.recolor.head&&recolorBucket?recolorBucket(rec.recolor.head.steps):canv('bucket_hat'),0,HATDY); };   // bucket hat: 16 seeded colourways
   const shirt0 = st.body==='whiteshirt' ? 'white_tee' : st.body; build(shirt0);   // whiteshirt swaps wifebeater/tee/polo by input
-  const cell=document.createElement('div'); cell.className='cell'; const cv=document.createElement('canvas'); cv.width=T;cv.height=T; cell.appendChild(cv);
+  const cell=document.createElement('div'); cell.className='cell'; cell.addEventListener('click',()=>openProfile(id)); const cv=document.createElement('canvas'); cv.width=T;cv.height=T; cell.appendChild(cv);
   const d=f=>`${f.input}/${f.dir}/${f.window[0]}/${f.sens[0]}`;
   const bits=[`eyes[${d(fx.eyes)}]`,`smoke[${d(fx.smoke)}]`,st.chain==='ticker'&&`ticker[24h%]`,st.chain==='neon_tube'&&`neon[${d(fx.neck)}]`,st.coin&&st.coin!=='none'&&`${st.coin}[${d(fx.coin)}]`,`bg:${st.bg}[${d(fx.bg)}]`].filter(Boolean).join(' ');
   const nf=nameFixed(id), s=statOf(id);
@@ -1691,6 +1714,54 @@ function bgRadix(ctx,t,ph,I){ const p=t*(0.012+I*0.05)+ph;                      
 }
 
 let t0=performance.now();
+// ---- CHARACTER PROFILE: click a monkey -> full reactive profile (sentiments, live ledger inputs, lore, stats) ----
+const PROF={ch:null,last:-999};
+const pmodal=document.createElement('div'); pmodal.id='pmodal';
+pmodal.innerHTML=`<div class="pback"></div><div class="pcard"><button class="pclose">✕</button>
+  <div class="pcol-l"><canvas id="pcanvas" width="256" height="256"></canvas><div id="pquote" class="pquote"></div></div>
+  <div class="pcol-r"><div id="pname" class="pname-big"></div><div id="psub" class="psub"></div><div id="plore" class="plore"></div>
+    <div id="pstats" class="pstats"></div>
+    <div class="phd">Reactive traits — live ledger inputs</div><div id="preact"></div>
+    <div class="phd">Trait affinity — wallet-clique sentiment</div><div id="paff"></div>
+    <div id="psocial" class="psocial"></div></div></div>`;
+document.body.appendChild(pmodal);
+function closeProfile(){ PROF.ch=null; pmodal.style.display='none'; }
+pmodal.querySelector('.pback').onclick=closeProfile; pmodal.querySelector('.pclose').onclick=closeProfile;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeProfile(); });
+function fmtInput(k){ const v=+G[k]; if(k.endsWith('_usd'))return '$'+(v<1?v.toPrecision(3):v.toFixed(2)); if(['xrd','early','oci','ciggie'].includes(k))return (v>=0?'+':'')+v.toFixed(1)+'%'; return Math.round(v).toLocaleString(); }
+const INLABEL=k=>((INPUTS.find(x=>x[0]===k)||[])[1]||k);
+function affSVGbig(aff){ const CW=240,RH=17,CX=120,MX=100,HH=AFF_DIMS.length*RH+2; let s=`<svg width="${CW}" height="${HH}" viewBox="0 0 ${CW} ${HH}">`;
+  s+=`<line x1="${CX}" y1="1" x2="${CX}" y2="${HH-1}" stroke="#3a4252"/>`;
+  AFF_DIMS.forEach((d,i)=>{ const y=i*RH+2, v=aff[i], w=Math.max(2,Math.abs(v)*MX), x=v>=0?CX:CX-w;
+    s+=`<text x="2" y="${y+12}" font-size="11" fill="#cdd3df">${d.e} ${d.k}</text><rect x="${x}" y="${y}" width="${w}" height="${RH-5}" rx="2" fill="${v>=0?'#3dff8a':'#ff5a5a'}"/><text x="${CW-2}" y="${y+12}" font-size="10" text-anchor="end" fill="#8a93a6">${v>=0?'+':''}${v.toFixed(2)}</text>`; });
+  return s+'</svg>'; }
+// the reactive effects THIS monkey visibly has, mapped to readable labels
+function reactList(ch){ const L=[['eyes','Eyes glow'],['smoke','Cigarette smoke'],['bg','Background'],['body','Outfit morph'],['neck','Neon necklace'],['coin','Coin / snow rain'],['rack','Medal ribbons'],['ear','Earrings'],['head','Hat toggle'],['eyewear','Eye patch']]; const R=[];
+  for(const [k,label] of L){ const fx=ch.fx[k]; if(!fx)continue; const st=ch.st;
+    if(k==='smoke'&&(!st.cig||st.cig==='none'))continue; if(k==='neck'&&st.chain!=='neon_tube')continue;
+    if(k==='coin'&&(!st.coin||st.coin==='none'))continue; if(k==='rack'&&!(st.body==='officer'||st.body==='officer_white'))continue;
+    if(k==='ear'&&(!st.ear||st.ear==='none'))continue; if(k==='eyewear'&&st.eyewear!=='patch')continue;
+    if(k==='body'&&st.body!=='whiteshirt')continue; if(k==='head'&&st.head!=='xmas')continue;
+    R.push({k,label,fx}); } return R; }
+function openProfile(id){ const ch=chars.find(c=>c.id===id); if(!ch)return; PROF.ch=ch; pmodal.style.display='flex';
+  const s=statOf(id); pmodal.scrollTop=0;
+  pmodal.querySelector('#psub').textContent=`${ch.nf.first} ${ch.nf.type} ${ch.nf.last} · #${id} · ${[ch.st.mon!=='classic'&&ch.st.mon,ch.st.cig,ch.st.head!=='none'&&ch.st.head,ch.st.body!=='none'&&ch.st.body,ch.st.chain!=='none'&&ch.st.chain,ch.st.grillz!=='none'&&ch.st.grillz].filter(Boolean).join(' · ')}`;
+  pmodal.querySelector('#plore').textContent=loreOf(id,ch.st,ch.nf,s);
+  pmodal.querySelector('#pstats').innerHTML=`<span>🚬 ${s.cigs.toLocaleString()} cigs</span><span>⚡ ${s.power.toLocaleString()} power</span><span>📦 ${s.packs}/day</span><span>🏳 ${s.rugs} rugs</span><span>💎 ${s.dmd}% diamond</span>`;
+  pmodal.querySelector('#paff').innerHTML=affSVGbig(ch.aff);
+  profTick(0,true); }
+function profTick(t,force){ const ch=PROF.ch; if(!ch)return;
+  const pc=document.getElementById('pcanvas'), x=pc.getContext('2d'); x.imageSmoothingEnabled=false; x.clearRect(0,0,256,256); x.drawImage(ch.ctx.canvas,0,0);   // live animated monkey
+  if(!force && t-PROF.last<18) return; PROF.last=t;   // throttle the data readouts to ~300ms
+  const mPct=senti(ch.fx.eyes)*30, blended=clamp(mPct*0.7+(ch.social||0)*30*0.3,-30,30), moodId=moodFromPct(blended);
+  let line=null; if(TALK){ try{ line=TALK.decode(TALK.doc,ch.id,blended); }catch(e){} }
+  document.getElementById('pname').innerHTML=nameHTML(ch.nf,line,moodId);
+  if(line!=null){ const cap=(ch.st.eyewear==='patch'&&drive(ch.fx.eyewear)>=0.5)?'I am the captain now: ':''; document.getElementById('pquote').textContent='“'+cap+line+'”'; }
+  let h=''; for(const r of reactList(ch)){ const drv=drive(r.fx), sen=senti(r.fx), dp=Math.round(drv*100), scol=sen>0.1?'#6fe3b0':sen<-0.1?'#ff7a7a':'#8a93a6';
+    h+=`<div class="rrow"><div class="rL"><b>${r.label}</b><span class="rin">← ${INLABEL(r.fx.input)} (${r.fx.dir}): <b>${fmtInput(r.fx.input)}</b></span></div><div class="rbar"><div class="rfill" style="width:${dp}%;background:${scol}"></div></div><div class="rval">${dp}%</div></div>`; }
+  document.getElementById('preact').innerHTML=h;
+  const sv=ch.social||0; document.getElementById('psocial').innerHTML=`Wallet social vibe: <b style="color:${sv>0.1?'#6fe3b0':sv<-0.1?'#ff7a7a':'#8a93a6'}">${sv>=0?'+':''}${sv.toFixed(2)}</b> — final mood = 70% market sentiment + 30% wallet vibe → drives eyes, nickname & quote.`; }
+
 function frame(){
   const t=(performance.now()-t0)/16.7, bob=[0,-1,-2,-2,-1,0,1,2,2,1];
   for(const ch of chars){ const ctx=ch.ctx; ctx.clearRect(0,0,T,T);
@@ -1815,6 +1886,7 @@ function frame(){
     if(ch.st.ear&&ch.st.ear!=='none'){ const col=GEMCOL[ch.st.ear]||'#fff', dv=drive(ch.fx.ear), n=dv<0.34?1:dv<0.67?2:3;
       for(let i=0;i<n;i++){ drawEarring(ctx,EARL[i][0],EARL[i][1]+dy,col,t,ch.phase+i); drawEarring(ctx,EARR[i][0],EARR[i][1]+dy,col,t,ch.phase+i+9); } }   // +dy so they bob WITH the head
   }
+  if(PROF.ch) profTick(t);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
