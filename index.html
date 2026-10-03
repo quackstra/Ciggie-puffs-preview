@@ -1191,7 +1191,7 @@ const lzmaMod = window.LZMA;   // LZMA (.lzma alone) decoder — assets are xz-c
 const { decompressLZMA } = lzmaMod;
 const VER='20261003-stokenet'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
 const cb=p=>p+(p.includes('?')?'&':'?')+'v='+VER;
-async function bytesOf(p){ let raw = (AS&&AS[p.split('?')[0]]) ? Uint8Array.from(atob(AS[p]),c=>c.charCodeAt(0)) : new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer());
+async function bytesOf(p){ var _k=p.split('?')[0]; let raw = (AS&&AS[_k]) ? Uint8Array.from(atob(AS[_k]),c=>c.charCodeAt(0)) : new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer());
   if(raw.length>2 && raw[0]===0x1f && raw[1]===0x8b){ raw = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()); }   // gzip: inflate natively
   else if(raw.length>13 && raw[0]!==0x1f && raw[5]===0xFF&&raw[6]===0xFF&&raw[7]===0xFF&&raw[8]===0xFF&&raw[9]===0xFF&&raw[10]===0xFF&&raw[11]===0xFF&&raw[12]===0xFF){ raw = decompressLZMA(raw); }   // lzma-alone (xz-class): 8-byte unknown-size marker; no native browser xz
   return raw; }
