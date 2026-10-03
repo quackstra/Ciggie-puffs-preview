@@ -11,3 +11,7 @@ Collection (stokenet):
 - NFT resource `resource_tdx_2_1nfm5fsfgpqv3m2n42etwemaef3yuseuqsq9ha5nfzh0rfy2adqwuyv`
 
 Open `index.html` (or the GitHub Pages site) — it fetches the collection and renders.
+
+## White paper
+
+A v0.1 white paper on **loom:anim** (the on-chain animation codec) and **Ciggie Puffs**, including the cross-chain on-ledger cost comparison and example renders: **[whitepaper/](whitepaper/)** → [PDF](whitepaper/loom-anim-ciggie-puffs-whitepaper-v0.1.pdf).
