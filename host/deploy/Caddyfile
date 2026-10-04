@@ -1,0 +1,5 @@
+# Auto-HTTPS (Let's Encrypt) for the redirect endpoint. Needs DNS A: ciggiepuffs.xrd.social -> droplet IP,
+# and ports 80+443 open. The heavy GIFs are served by DO Spaces CDN at cdn.ciggiepuffs.xrd.social (not here).
+ciggiepuffs.xrd.social {
+    reverse_proxy localhost:8080
+}

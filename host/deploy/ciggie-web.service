@@ -1,0 +1,12 @@
+[Unit]
+Description=Ciggie Puffs redirect service
+After=network.target
+[Service]
+WorkingDirectory=/opt/ciggie-cms
+EnvironmentFile=/etc/ciggie/env
+ExecStart=/usr/bin/node server.mjs
+Restart=always
+RestartSec=2
+User=root
+[Install]
+WantedBy=multi-user.target

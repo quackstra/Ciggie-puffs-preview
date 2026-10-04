@@ -1,0 +1,12 @@
+[Unit]
+Description=Ciggie Puffs render loop (watch)
+After=network.target
+[Service]
+WorkingDirectory=/opt/ciggie-cms
+EnvironmentFile=/etc/ciggie/env
+ExecStart=/usr/bin/node watch.mjs
+Restart=always
+RestartSec=10
+User=root
+[Install]
+WantedBy=multi-user.target
