@@ -1,14 +1,13 @@
-// One render worker: renders a contiguous slice of ids with its OWN browser, uploads each GIF to Spaces
-// (pipelined, so network overlaps CPU). Spawned by render/pool.mjs via child_process.fork — K workers = K
-// cores, which parallelizes BOTH the chromium render (~67%) and the node-side gifenc encode (~33%).
-// Config via env: SLICE_START, SLICE_COUNT, BUCKET_KEY, REP_INPUTS (json), UPLOAD_CONC. Reports {ok,id,bytes}.
+// One render worker: renders a set of ids (from SLICE_IDS_FILE) with its OWN browser, uploads each GIF to
+// Spaces (pipelined, so network overlaps CPU). Spawned by render/pool.mjs via child_process.fork — K workers
+// = K cores, parallelizing both the chromium render (~67%) and the node-side gifenc encode (~33%).
+// Config via env: SLICE_IDS_FILE, BUCKET_KEY, REP_INPUTS (json), UPLOAD_CONC. Reports {ok,id,bytes} per GIF.
 import { makeBrowser, renderGif } from './capture.mjs';
 import { hashFor } from '../bucketize.mjs';
 import { putGif, storageReady } from '../storage.mjs';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 
-const start = +process.env.SLICE_START;
-const count = +process.env.SLICE_COUNT;
+const ids = JSON.parse(readFileSync(process.env.SLICE_IDS_FILE, 'utf8'));
 const bucketKey = process.env.BUCKET_KEY;
 const repInputs = JSON.parse(process.env.REP_INPUTS);
 const UPLOAD_CONC = +(process.env.UPLOAD_CONC || 6);
@@ -27,7 +26,7 @@ function track(pr) {
 async function gate() { while (inflight.size >= UPLOAD_CONC) await Promise.race(inflight); }
 
 try {
-  for (let id = start; id < start + count; id++) {
+  for (const id of ids) {
     if (failed) throw failed;
     const hash = hashFor(id, bucketKey);
     const bytes = await renderGif(page, id, repInputs);
@@ -40,7 +39,7 @@ try {
   await close();
   process.exit(0);
 } catch (e) {
-  console.error(`worker slice ${start}..${start + count - 1} failed: ${e.message}`);
+  console.error(`worker failed: ${e.message}`);
   try { await close(); } catch {}
   process.exit(1);
 }

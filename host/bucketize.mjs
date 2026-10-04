@@ -4,9 +4,10 @@
 //
 //   const { inputs, bucketKey } = await currentBucket();
 //   const hash = hashFor(id, bucketKey);   // -> /cdn/{id}/{hash}.gif
-import { createHash } from 'node:crypto';
+import { contentHash } from './reactive.mjs';
 
-export const VERSION = 'v1';           // bump when the renderer or art bundle changes -> cache-busts cleanly
+// env-overridable so server.mjs and bucketize ALWAYS agree on the hash; bump when the renderer/art changes.
+export const VERSION = process.env.VERSION || 'v2';
 const GW = 'https://mainnet.radixdlt.com';
 const XRD = 'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd';
 const USD = 'component_rdx1czy2naejcqx8gv46zdsex2syuxrs4jnqzug58e66zr8wglxzvu97qr';          // XRD/hUSDC precision pool
@@ -65,7 +66,8 @@ export function quantize(G) {
   const nf = Math.min(24, Math.round(G.nfts)); rep.nfts = nf; key.nfts = nf;
   return { repInputs: rep, bucketKey: Object.keys(key).sort().map(k => k + ':' + key[k]).join('|') };
 }
-export function hashFor(id, bucketKey) { return createHash('sha256').update(VERSION + '|' + id + '|' + bucketKey).digest('hex').slice(0, 16); }
+// content-addressed per-token: projects the bucket onto the token's reactive dims (see reactive.mjs)
+export function hashFor(id, bucketKey) { return contentHash(VERSION, id, bucketKey); }
 
 export async function currentBucket() {
   const inputs = await fetchInputs();
