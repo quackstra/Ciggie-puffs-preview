@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ciggie Talking-Loom — speech demo</title>
+<style>
+ :root{color-scheme:dark} body{margin:0;background:#0b0d12;color:#e7e9ee;font:14px/1.5 system-ui,sans-serif}
+ header{padding:16px 22px 8px} h1{font-size:19px;margin:0 0 2px} .sub{color:#9aa4b2;font-size:12px}
+ .hash{font:10px/1.4 ui-monospace,monospace;color:#6fe3b0;word-break:break-all;margin-top:4px}
+ #ctrls{padding:10px 22px;border-bottom:1px solid #1c2130;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+ #ctrls input[type=range]{width:320px} .val{color:#6fe3b0;font-variant-numeric:tabular-nums} .mood{color:#ffd166;font-weight:600}
+ #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;padding:16px 22px 40px}
+ .card{background:#121620;border:1px solid #202636;border-radius:12px;padding:12px}
+ .who{font:11px ui-monospace,monospace;color:#8a93a6;margin-bottom:6px}
+ .bubble{background:#1b2334;border:1px solid #2a3550;border-radius:12px;border-bottom-left-radius:3px;padding:8px 11px;font-size:14px;color:#eaf0ff;min-height:20px}
+ .mk{font-size:20px;margin-right:6px}
+</style></head><body>
+<header>
+ <h1>Ciggie Talking-Loom <span class="sub">— deterministic, closed-output speech decoded from a 1 KB on-ledger data file</span></h1>
+ <div class="sub">Each monkey's line is <code>decode(dataFile, nftId, price%)</code> — same inputs → byte-identical line, every word from the file. Move the slider; the words react to the market, same as the art would.</div>
+ <div class="hash" id="dh">data_hash: …</div>
+</header>
+<div id="ctrls">
+ <label>XRD 24h change %: <span class="val" id="pv">+12</span>%</label>
+ <input type="range" id="pct" min="-30" max="30" step="1" value="12">
+ <div>mood: <span class="mood" id="mv">—</span></div>
+</div>
+<div id="grid"></div>
+<script type="module">
+import { parse, decode, moodFromPct } from './decoder.mjs?v=1';
+const MOODS=["euphoric","bullish","chill","anxious","bearish","capitulating","zen"];
+const NAMES=["Ash","Ember","Cinder","Haze","Puff","Smokey","Tar","Nico","Bogart","Filter","Stogie","Drag","Flick","Soot","Blaze","Coal"];
+async function blake2bHex(buf){ // for display only
+  const h=await crypto.subtle.digest('SHA-256',buf); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
+const bytes=new Uint8Array(await (await fetch('./ciggie.loomtalk?v=1')).arrayBuffer());
+const doc=parse(bytes.buffer);
+document.getElementById('dh').textContent='data_hash (blake2b-256, pinned on-ledger): '+(await (await fetch('./ciggie.loomtalk.hash?v=1').catch(()=>({text:()=>'see assembler'}))).text?.().catch(()=>''))||'';
+const N=18, grid=document.getElementById('grid'), cells=[];
+for(let id=0;id<N;id++){ const c=document.createElement('div'); c.className='card';
+  c.innerHTML=`<div class="who"><span class="mk">🐵</span>#${id} · ${NAMES[id%NAMES.length]}</div><div class="bubble" id="b${id}">…</div>`;
+  grid.appendChild(c); cells.push(document.getElementById('b'+id)); }
+const pct=document.getElementById('pct'), pv=document.getElementById('pv'), mv=document.getElementById('mv');
+function render(){ const p=+pct.value; pv.textContent=(p>=0?'+':'')+p; mv.textContent=MOODS[moodFromPct(p)];
+  for(let id=0;id<N;id++) cells[id].textContent='“'+decode(doc,id,p)+'”'; }
+pct.oninput=render; render();
+</script></body></html>
