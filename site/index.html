@@ -36,6 +36,9 @@
   #pmodal .pcol-l{flex:0 0 256px;}
   #pmodal #pcanvas{width:256px;height:256px;image-rendering:pixelated;background:#0b0d12;border-radius:10px;display:block;}
   #pmodal .pquote{margin-top:8px;font-style:italic;color:#e7e9ee;font-size:13px;text-align:center;min-height:18px;}
+  #pmodal .pexport{margin-top:10px;width:256px;max-width:100%;background:#5b3fb0;color:#fff;border:1px solid #6b4fd0;border-radius:9px;padding:9px 12px;font:600 13px system-ui;cursor:pointer;}
+  #pmodal .pexport:hover{filter:brightness(1.12);} #pmodal .pexport:disabled{opacity:.55;cursor:default;}
+  #pmodal .pexstat{margin-top:6px;font-size:11px;color:#8a93a6;text-align:center;min-height:14px;}
   #pmodal .pcol-r{flex:1;min-width:0;}
   #pmodal .pname-big{font-size:18px;font-weight:700;color:#fff;line-height:1.3;}
   #pmodal .pname-big b{color:#6fe3b0;}
@@ -71,6 +74,23 @@
   .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:30px}
   .card{background:#121620;border:1px solid #202636;border-radius:12px;padding:16px;text-align:left}
   .card h3{margin:0 0 6px;font-size:15px;color:#eaf0ff} .card p{margin:0;font-size:13px;color:#9aa4b2}
+  /* ---- home carousel: a live strip of monkeys, auto-cycling the collection ---- */
+  .carousel-wrap{margin-top:34px}
+  .carousel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+  .carousel-head h3{margin:0;font-size:19px;color:#eaf0ff}
+  .carousel-head .csub{font-size:12px;color:#8a93a6}
+  #carousel{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  #carousel::-webkit-scrollbar{height:6px} #carousel::-webkit-scrollbar-thumb{background:#2a3350;border-radius:3px}
+  .ccard{flex:0 0 190px;scroll-snap-align:start;background:#121620;border:1px solid #202636;border-radius:12px;padding:10px;
+    text-align:center;cursor:pointer;transition:opacity .45s ease,border-color .2s}
+  .ccard:hover{border-color:#5b3fb0}
+  .ccard.swap{opacity:0}
+  .ccard canvas{image-rendering:pixelated;width:100%;aspect-ratio:1;border-radius:8px;background:#0f1320;display:block}
+  .ccard .cc-name{font:700 12px/1.25 system-ui,sans-serif;color:#eaf0ff;margin-top:8px;min-height:30px}
+  .ccard .cc-name b{color:#6fe3b0}
+  .ccard .cc-say{font:11px/1.35 system-ui,sans-serif;color:#eaf0ff;background:#1b2334;border:1px solid #2a3550;
+    border-radius:9px;border-bottom-left-radius:3px;padding:5px 8px;margin-top:7px;min-height:30px;text-align:left}
+  @media(max-width:620px){ .ccard{flex-basis:150px} }
   .sect-h{font-size:22px;color:#eaf0ff;margin:0 0 4px} .sect-sub{color:#9aa4b2;font-size:13px;margin:0 0 18px;max-width:760px}
   .stub{color:#6b7180;font-size:13px;border:1px dashed #2a3142;border-radius:10px;padding:24px;text-align:center}
   #demowrap{display:flex;flex-direction:column;gap:18px;margin-top:8px}
@@ -110,6 +130,7 @@
   /* slim collection cells */
   #filters.hidf{display:none} .pdots{color:#6b7180;padding:0 4px;align-self:center}
   .cell{cursor:pointer} .cell .cid{font:11px ui-monospace,monospace;color:#8a93a6;margin-top:3px}
+  .cell .cmetric{font:700 11px ui-monospace,monospace;color:#ffd166;margin-top:4px;background:#1a1d0f;border:1px solid #3a3416;border-radius:6px;padding:2px 6px;display:inline-block}
   .cell .cprof{font:600 11px system-ui;color:#6fe3b0;margin-top:9px;opacity:.85} .cell:hover .cprof{opacity:1;text-decoration:underline} .cell:hover{border-color:#5b3fb0}
 </style></head><body>
 <nav id="sitenav">
@@ -132,6 +153,13 @@
         <a class="btn ghost" href="#collection">Browse the collection</a>
         <a class="btn ghost" href="#connect">Connect wallet</a>
       </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel-head">
+        <h3>Meet the Puffs — <b style="color:#6fe3b0">live</b></h3>
+        <span class="csub">Rendering in your browser, reacting to live mainnet data · auto-cycling the collection · click any to open its profile</span>
+      </div>
+      <div id="carousel"></div>
     </div>
     <div class="feat">
       <div class="card"><h3>🎞 loom:anim</h3><p>A tiny integer-deterministic animation codec. The whole collection is a function + a shared art alphabet + one seed per token — not 10,000 image files.</p></div>
@@ -208,7 +236,7 @@
 
   <section id="collection" class="route" hidden>
     <h2 class="sect-h">The collection</h2>
-    <p class="sect-sub">Every monkey here is <b>live</b> — rendered in your browser and reacting to real Radix <b>mainnet</b> market data right now (prices, 24h moves, network volume). Filter by trait, and click any monkey for its full profile. Want to drive the signals yourself? See the <a href="#demo" style="color:#6fe3b0">Demo</a>.</p>
+    <p class="sect-sub">Every monkey here is <b>live</b> — rendered in your browser and reacting to real Radix <b>mainnet</b> market data right now (prices, 24h moves, network volume). Filter by trait, or <b>sort</b> by richest, most social, recently transferred, or biggest mood swing. Click any monkey for its full profile; scrub the <b>time machine</b> to replay any past ledger state. Want to drive the signals yourself? See the <a href="#demo" style="color:#6fe3b0">Demo</a>.</p>
     <div id="ctrls"></div><div id="filters" class="hidf"></div><div id="pager"></div><div id="grid"></div>
   </section>
 
@@ -414,7 +442,7 @@ const NETS={
     pools:{ early:null, oci:null, ciggie:null },
     puffs:'resource_tdx_2_1nfm5fsfgpqv3m2n42etwemaef3yuseuqsq9ha5nfzh0rfy2adqwuyv',          // LIVE stokenet Ciggie Puffs NFT resource (deployed 2026-10-03)
     component:'component_tdx_2_1cr79kf7pycgx8efwjmdw7uc4xxsvqqpx63fcvtp25c2k3yc84sdscs' } };  // collection component (bundle KVStore source for on-ledger render path)
-const LIVE={ net:'mainnet', on:false, timer:null, account:null, _ago:null, get c(){return NETS[this.net];} };
+const LIVE={ net:'mainnet', on:false, timer:null, account:null, _ago:null, replay:null, get c(){return NETS[this.net];} };
 const gwPost=(p,b)=>fetch(LIVE.c.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json());
 function setInput(k,v,disp){ if(!(k in G))return; G[k]=v; const R=RANGES[k]; if(R){ R.r.value=v; const el=document.getElementById('v_'+k); if(el) el.textContent=disp!=null?disp:R.fmt(v); } }
 // token price in XRD from a BASIC native TwoResourcePool: XRD reserve / OTHER reserve (a pool holds exactly the 2).
@@ -424,10 +452,13 @@ function poolPrice(item,xrdAddr){ const f=(item&&item.fungible_resources&&item.f
 // Both our precision pools quote in XRD-side-as-y with base=x, so price_sqrt^2 = base's price in the quote (XRD/hUSDC->XRD-USD, CIGGIE/XRD->CIGGIE-XRD).
 function sqrtP2(item){ const f=((item&&item.details&&item.details.state&&item.details.state.fields)||[]).find(x=>x.field_name==='price_sqrt'); const s=f?+f.value:0; return s*s; }
 const tokXrd=(item,e,xrdAddr)=>e.k==='prec'?sqrtP2(item):poolPrice(item,xrdAddr);   // token price in XRD, either pool kind
-async function livePrices(){ const C=LIVE.c; const ents=Object.entries(C.pools).filter(([,v])=>v&&v.a);
+// asOf = ISO timestamp to read a HISTORICAL ledger state (the time machine); null/undefined = latest (live).
+async function livePrices(asOf){ const C=LIVE.c; const ents=Object.entries(C.pools).filter(([,v])=>v&&v.a);
   const addrs=[...(C.usd?[C.usd]:[]), ...ents.map(([,v])=>v.a)]; if(!addrs.length) return;
-  try{ const now=await gwPost('/state/entity/details',{addresses:addrs,aggregation_level:'Global'}); const ls=now.ledger_state;
-    LIVE._ago=new Date(new Date(ls.proposer_round_timestamp).getTime()-864e5).toISOString();   // reuse this ledger-clock 24h mark for network/account too
+  try{ const nb={addresses:addrs,aggregation_level:'Global'}; if(asOf) nb.at_ledger_state={timestamp:asOf};
+    const now=await gwPost('/state/entity/details',nb); const ls=now.ledger_state;
+    const refMs=asOf?new Date(asOf).getTime():new Date(ls.proposer_round_timestamp).getTime();
+    LIVE._ago=new Date(refMs-864e5).toISOString();   // the 24h mark for the % change (and reused by network/account)
     const old=await gwPost('/state/entity/details',{addresses:addrs,aggregation_level:'Global',at_ledger_state:{timestamp:LIVE._ago}});
     const byA=o=>Object.fromEntries(((o&&o.items)||[]).map(it=>[it.address,it])); const N=byA(now), O=byA(old);
     const xun=C.usd?sqrtP2(N[C.usd]):1, xuo=C.usd?sqrtP2(O[C.usd]):1;   // XRD->USD now/24h (1 when no USD pool -> keep prices XRD-denominated)
@@ -436,8 +467,10 @@ async function livePrices(){ const C=LIVE.c; const ents=Object.entries(C.pools).
     for(const [k,e] of ents){ const xn=tokXrd(N[e.a],e,C.xrd); if(xn<=0) continue; const un=xn*xun, uo=tokXrd(O[e.a],e,C.xrd)*xuo;
       setInput(k+'_usd', un, disp(un)); const p=pct(un,uo); if(isFinite(p)) setInput(k,p,show(p)); } }
   catch(e){} }
-async function liveNetwork(){ try{ const head=await gwPost('/stream/transactions',{limit_per_page:1,order:'Desc'}); const ls=head.ledger_state;
-  LIVE._ago=new Date(new Date(ls.proposer_round_timestamp).getTime()-864e5).toISOString();
+async function liveNetwork(asOf){ try{ const hb={limit_per_page:1,order:'Desc'}; if(asOf) hb.at_ledger_state={timestamp:asOf};
+  const head=await gwPost('/stream/transactions',hb); const ls=head.ledger_state;
+  const refMs=asOf?new Date(asOf).getTime():new Date(ls.proposer_round_timestamp).getTime();
+  LIVE._ago=new Date(refMs-864e5).toISOString();
   const old=await gwPost('/stream/transactions',{limit_per_page:1,order:'Asc',from_ledger_state:{timestamp:LIVE._ago}}); const then=old.items?.[0]?.state_version;
   if(then) setInput('network', Math.min(ls.state_version-then,1e6)); }catch(e){} }
 async function liveAccount(){ const a=LIVE.account; if(!a) return; try{ const ago=LIVE._ago||new Date(Date.now()-864e5).toISOString();
@@ -446,21 +479,83 @@ async function liveAccount(){ const a=LIVE.account; if(!a) return; try{ const ag
   if(LIVE.c.puffs){ const nf=await gwPost('/state/entity/page/non-fungibles/',{address:a,aggregation_level:'Vault'});
     const row=(nf.items||[]).find(i=>i.resource_address===LIVE.c.puffs); const n=row?(row.vaults?.items?.reduce((s,v)=>s+(+v.total_count||0),0)||+row.amount||0):0; setInput('nfts', Math.min(n,24)); }
 }catch(e){} }
-async function liveRefresh(){ const st=document.getElementById('livestat'); if(st) st.textContent='⟳ fetching…';
-  await Promise.all([livePrices(), liveNetwork().then(liveAccount)]); updateSpeech();
-  if(st){ const t=new Date().toLocaleTimeString(); st.textContent=`🟢 live · ${LIVE.net} · updated ${t}${LIVE.account?' · wallet '+LIVE.account.slice(0,11)+'…':''}`; } }
-function liveStop(){ LIVE.on=false; if(LIVE.timer){ clearInterval(LIVE.timer); LIVE.timer=null; } const st=document.getElementById('livestat'); if(st) st.textContent='⚪ manual mode'; }
-function liveStart(){ if(LIVE.on) return; LIVE.on=true; liveRefresh(); LIVE.timer=setInterval(liveRefresh,60000); }
+async function liveRefresh(asOf){ const st=document.getElementById('livestat'); if(st) st.textContent=asOf?'⟳ loading ledger state…':'⟳ fetching…';
+  if(asOf){ for(const k of ['xrd','early','ciggie','oci']) setInput(k,0); setInput('network',400000); }   // neutralize first: a date before the pools existed has no Gateway data -> show flat, not stale
+  await Promise.all([livePrices(asOf), asOf? liveNetwork(asOf) : liveNetwork().then(liveAccount)]); updateSpeech(); try{CAROUSEL.refreshSpeech();}catch(e){}
+  if(st){ if(asOf){ const d=new Date(asOf); st.textContent=`⏳ replay · ${LIVE.net} · ledger state @ ${d.toISOString().slice(0,16).replace('T',' ')} UTC`; }
+    else { const t=new Date().toLocaleTimeString(); st.textContent=`🟢 live · ${LIVE.net} · updated ${t}${LIVE.account?' · wallet '+LIVE.account.slice(0,11)+'…':''}`; } } }
+function liveStop(){ LIVE.on=false; if(LIVE.timer){ clearInterval(LIVE.timer); LIVE.timer=null; } }
+function liveStart(){ LIVE.replay=null; if(LIVE.on) return; LIVE.on=true; liveRefresh(); LIVE.timer=setInterval(()=>{ if(!LIVE.replay) liveRefresh(); },60000); }
 { const d=document.createElement('div'); d.className='ctl'; d.style.cssText='display:flex;align-items:center;gap:14px;flex-wrap:wrap';
   const st=document.createElement('span'); st.id='livestat'; st.style.cssText='font-size:12px;opacity:.85'; st.textContent='⚪ connecting to mainnet…'; d.appendChild(st);
   const ftog=document.createElement('button'); ftog.className='fbtn'; ftog.textContent='🔎 Filters ▾';
   ftog.onclick=()=>{ const hidden=document.getElementById('filters').classList.toggle('hidf'); ftog.textContent='🔎 Filters '+(hidden?'▾':'▴'); }; d.appendChild(ftog);
   document.getElementById('ctrls').appendChild(d);
+  // --- TIME MACHINE: replay the whole collection at ANY point in the ledger's history (genesis -> now). ---
+  // Historical pool/network state via the Gateway's at_ledger_state; the grid re-renders from G automatically.
+  // Slider scrubs coarsely; the date-time field jumps to an exact moment. Range starts at the ledger genesis
+  // (read live from the Gateway for whichever network, with the Babylon-mainnet date as the fallback).
+  const STEP_MS=36e5, nowMs=Date.now(), GENESIS_FALLBACK=Date.parse('2023-09-28T07:26:54Z');
+  let minMs=GENESIS_FALLBACK, steps=Math.max(1,Math.round((nowMs-minMs)/STEP_MS));
+  const tm=document.createElement('div'); tm.className='ctl'; tm.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:340px';
+  const lab=document.createElement('span'); lab.textContent='🕑 Time machine'; lab.style.cssText='font-size:12px;color:#6fe3b0;font-weight:700;white-space:nowrap';
+  const sl=document.createElement('input'); sl.type='range'; sl.min=0; sl.max=steps; sl.step=1; sl.value=steps; sl.style.cssText='flex:1;min-width:150px';
+  const dt=document.createElement('input'); dt.type='datetime-local'; dt.step=3600; dt.style.cssText='background:#141821;color:#e7e9ee;border:1px solid #2a3142;border-radius:6px;padding:3px 6px;font:12px system-ui;color-scheme:dark';
+  const rd=document.createElement('span'); rd.id='tmread'; rd.style.cssText='font-size:12px;color:#c7cdda;font-variant-numeric:tabular-nums;min-width:120px';
+  const liveBtn=document.createElement('button'); liveBtn.className='pbtn on'; liveBtn.textContent='● Live';
+  const clampMs=ms=>Math.max(minMs,Math.min(nowMs,ms));
+  const uIn=ms=>new Date(ms).toISOString().slice(0,16);                 // UTC -> YYYY-MM-DDTHH:MM (datetime-local value)
+  const vFor=ms=>Math.round((clampMs(ms)-minMs)/STEP_MS), msFor=v=>clampMs(minMs+(+v)*STEP_MS);
+  const fmt=ms=>new Date(ms).toISOString().slice(0,16).replace('T',' ')+' UTC', isLive=ms=>ms>=nowMs-STEP_MS;
+  function reflect(ms,live){ if(live){ rd.textContent='now · live'; sl.value=steps; dt.value=uIn(nowMs); } else { rd.textContent=fmt(ms); sl.value=vFor(ms); dt.value=uIn(ms); } liveBtn.classList.toggle('on',!!live); }
+  function apply(ms){ ms=clampMs(ms); if(isLive(ms)){ goLive(); return; } LIVE.replay=new Date(ms).toISOString(); reflect(ms,false); liveStop(); liveRefresh(LIVE.replay).then(()=>{ if(MARKET_SORTS.has(F.sort)) applyF(); }); }   // re-rank live-sentiment sorts for the new ledger time
+  function goLive(){ LIVE.replay=null; reflect(nowMs,true); liveStart(); if(MARKET_SORTS.has(F.sort)) setTimeout(applyF,1400); }
+  let aT=null;
+  sl.oninput=()=>{ const ms=msFor(sl.value); rd.textContent=isLive(ms)?'now · live':fmt(ms); dt.value=uIn(ms); liveBtn.classList.toggle('on',isLive(ms)); };
+  sl.onchange=()=>{ clearTimeout(aT); aT=setTimeout(()=>apply(msFor(sl.value)),60); };
+  dt.onchange=()=>{ const ms=Date.parse((dt.value||'')+':00Z'); if(!isNaN(ms)) apply(ms); };
+  liveBtn.onclick=goLive;
+  dt.min=uIn(minMs); dt.max=uIn(nowMs); reflect(nowMs,true);
+  tm.appendChild(lab); tm.appendChild(sl); tm.appendChild(dt); tm.appendChild(rd); tm.appendChild(liveBtn);
+  document.getElementById('ctrls').appendChild(tm);
+  // widen the range to the ACTUAL ledger genesis for whichever network (keeps it "any time on the ledger")
+  gwPost('/stream/transactions',{limit_per_page:1,order:'Asc'}).then(r=>{ const g=r.items?.[0]?.confirmed_at, gm=g?Date.parse(g):NaN;
+    if(isFinite(gm)){ minMs=gm; steps=Math.max(1,Math.round((nowMs-minMs)/STEP_MS)); sl.max=steps; dt.min=uIn(minMs); if(!LIVE.replay) reflect(nowMs,true); } }).catch(()=>{});
   const q=new URLSearchParams(location.search);
   if(q.get('net')==='stokenet') LIVE.net='stokenet';
   if(q.get('account')) LIVE.account=q.get('account');   // optional dev override; the Connect section wires wallet holdings
-  liveStart();   // the Collection is ALWAYS live mainnet — no manual sliders
+  liveStart();   // starts LIVE; the time machine can jump to any past ledger state
 }
+// ---- HOLDINGS: per-monkey OWNER data for the "Richest" + "Most social" sorts (needs minted tokens) ----
+// Richest(id)  = USD/XRD value of the CIGGIE+EARLY+XRD+OCI bag in the ACCOUNT that holds that monkey.
+// Social(id)   = how many Ciggie Puffs that same account holds.
+// Built once per network from the Gateway: all minted ids -> owner account (non-fungible location) ->
+// per-account token balances. Valuation uses the LIVE prices in G, so it tracks the time machine too.
+const MAIN_BAG=[   // mainnet token resource addresses (read off the DEX pools) + their price key in G
+  ['ciggie_usd','resource_rdx1tkd2ju68gsjkk33g7fjq5wsq45r4u2s6w5pgd4cw6ckshcfwn5l48s'],
+  ['early_usd', 'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s'],
+  ['oci_usd',   'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8']];
+const bagResources=()=>{ const C=LIVE.c, list=[['xrd_usd',C.xrd]]; if(LIVE.net==='mainnet') list.push(...MAIN_BAG); return list; };   // [priceKey, resourceAddress]
+const HOLDINGS={ net:null, ready:false, loading:null, idToAcct:{}, acctAmt:{}, acctCount:{}, holders:0,
+  bagOf(id){ const a=this.idToAcct[id], arr=a&&this.acctAmt[a]; if(!arr) return 0; const noUsd=!LIVE.c.usd; let v=0;
+    for(const [pk,amt] of arr){ const price=(noUsd&&pk==='xrd_usd')?1:(+G[pk]||0); v+=amt*price; } return v; },   // mainnet: USD value (live, tracks time machine); no-USD net (stokenet): XRD-denominated
+  countOf(id){ const a=this.idToAcct[id]; return a?(this.acctCount[a]||0):0; },
+  load(){ if(this.ready && this.net===LIVE.net) return Promise.resolve(); if(this.loading) return this.loading;
+    this.loading=(async()=>{ const C=LIVE.c; this.net=LIVE.net; const idToAcct={}, acctCount={};
+      try{ if(C.puffs){
+        let ids=[], cur; do{ const b={resource_address:C.puffs}; if(cur)b.cursor=cur;   // 1) every minted id
+          const r=await gwPost('/state/non-fungible/ids',b); const nf=r.non_fungible_ids||{}; const items=nf.items||(Array.isArray(nf)?nf:[]); ids.push(...items); cur=nf.next_cursor||r.next_cursor; }while(cur&&ids.length<20000);
+        for(let i=0;i<ids.length;i+=100){ const r=await gwPost('/state/non-fungible/location',{resource_address:C.puffs,non_fungible_ids:ids.slice(i,i+100)});   // 2) id -> owner account
+          for(const it of (r.non_fungible_ids||[])){ const acct=it.owning_vault_global_ancestor_address, m=/#(\d+)#/.exec(it.non_fungible_id);
+            if(acct && m && !it.is_burned){ idToAcct[+m[1]]=acct; acctCount[acct]=(acctCount[acct]||0)+1; } } }
+        const bag=bagResources(), accts=[...new Set(Object.values(idToAcct))], acctAmt={};
+        for(let i=0;i<accts.length;i+=20){ const r=await gwPost('/state/entity/details',{addresses:accts.slice(i,i+20),aggregation_level:'Global'});   // 3) each account's bag balances
+          for(const e of (r.items||[])){ const f=(e.fungible_resources&&e.fungible_resources.items)||[];
+            acctAmt[e.address]=bag.map(([pk,addr])=>{ const row=f.find(x=>x.resource_address===addr); return [pk, row?+(row.amount||0):0]; }); } }
+        this.idToAcct=idToAcct; this.acctCount=acctCount; this.acctAmt=acctAmt; this.holders=accts.length;
+      } else { this.idToAcct={}; this.acctCount={}; this.acctAmt={}; this.holders=0; } }
+      catch(e){ console.warn('holdings load failed',e); }
+      this.ready=true; this.loading=null; })(); return this.loading; } };
 // ---- CHARACTER PROFILE: deterministic name (fixed parts @mint + reactive nickname from the live quote) + fake stats + lore ----
 const FIRST=['Chad','Giga','Satoshi','Pepe','Wojak','Apollo','Luna','Diamond','Moon','Ser','Anon','Dutch','Rex','Zogg','Bongo','Kong','Caesar','Bananas','Puff','Ash','Smokey','Blaze','Nugget','Chunk','Tito','Cosmo','Rocco','Vinnie','Gordo','Milo','Boomer','Zyn','Kujo','Fentso','Brick','Hazmat','Clout','Jericho','Tendie','Vega'];
 const TYPE=['Degen','Baron','Oracle','Hustler','Prophet','Grifter','Whale','Maxi','Shiller','Sage','Menace','Jeet','Chad','Villain','Tycoon','Gremlin'];
@@ -482,6 +577,12 @@ const AFF_DIMS=[
  {k:'crown',  e:'👑', t:s=>s.head==='crown'||s.head==='crown_silver'},  {k:'officer', e:'🎖', t:s=>s.body==='officer'||s.body==='officer_white'},
  {k:'hyper',  e:'⚡', t:s=>s.body==='hypersuit'},       {k:'diamond',e:'💎', t:s=>s.grillz==='diamond'||s.ear==='diamond'}];
 const affinityOf=id=>AFF_DIMS.map(d=>(h32('aff'+d.k+id)%2001-1000)/1000);   // deterministic -1..1 per clique
+// ---- SORT METRICS ----
+// Richest + Most-social are REAL per-holder data (see HOLDINGS): richest = value of the account's CIGGIE/EARLY/XRD/OCI
+// bag; social = how many Ciggie Puffs that account holds. Both need minted tokens (populate on stokenet / at mint).
+const xferDaysOf=id=>h32('xf'+id)%540;    // simulated days since last transfer (placeholder until mint binds transfer history)
+const agoText=d=>d<=0?'today':d===1?'yesterday':d<30?d+'d ago':d<365?Math.round(d/30)+'mo ago':(d/365).toFixed(1)+'y ago';
+const moodOf=m=>senti(m.rec?m.rec.fx.eyes:m.fx.eyes);   // live sentiment of the eyes (|mood| = biggest mover). REAL, live.
 // red -> amber -> teal by signed sentiment
 function eyeColor(s){ const t=(s+1)/2; let r,g,b;
   if(t<0.5){const k=t/0.5; r=255; g=40+160*k; b=40;} else {const k=(t-0.5)/0.5; r=255-215*k; g=200+55*k; b=40+160*k;}
@@ -512,6 +613,7 @@ function buildChar(m){ const id=m.id, rec=m.rec, st=rec.traits, fx=rec.fx;   // 
   const nmEl=document.createElement('div'); nmEl.className='pname'; nmEl.innerHTML=nameHTML(nf,null,moodFromPct(senti(fx.eyes)*30)); cell.appendChild(nmEl);
   const idEl=document.createElement('div'); idEl.className='cid'; idEl.textContent='#'+id; cell.appendChild(idEl);
   const say=document.createElement('div'); say.className='say'; cell.appendChild(say);   // Talking-Loom quote bubble
+  const metTxt=m.target?'':metricFor(m); if(metTxt){ const met=document.createElement('div'); met.className='cmetric'; met.textContent=metTxt; cell.appendChild(met); }   // active sort's value on GRID cells only (richest/social/transfer/mood)
   const lnk=document.createElement('div'); lnk.className='cprof'; lnk.textContent='View profile →'; cell.appendChild(lnk);
   (m.target||document.getElementById('grid')).appendChild(cell);
   const _cx=cv.getContext('2d'); _cx.imageSmoothingEnabled=false;   // keep the scaled sombrero crisp pixel-art (no bilinear mush)
@@ -531,9 +633,21 @@ function matchesF(m){ const s=m.rec.traits, fx=m.rec.fx;
   if(F.eyesSens&&F.eyesSens!=='*'&&fx.eyes.sens!==F.eyesSens) return false;
   if(F.rfx&&F.rfx!=='*'&&!rfxTags(m).includes(F.rfx)) return false;
   return true; }
+// numeric sorts rank DESCENDING (biggest first); 'mover' reads live sentiment so it tracks the current ledger state
+const NUMSORT={ worth:m=>HOLDINGS.bagOf(m.id), social:m=>HOLDINGS.countOf(m.id), xfer:m=>-xferDaysOf(m.id), mover:m=>Math.abs(moodOf(m)), bull:m=>moodOf(m), bear:m=>-moodOf(m) };
+const MARKET_SORTS=new Set(['mover','bull','bear']);   // depend on G -> re-sort when the ledger time changes
+const HOLD_SORTS=new Set(['worth','social']);          // depend on OWNER data -> need HOLDINGS loaded (minted tokens)
 function sortV(arr){ const k=F.sort||'id'; if(k==='id') return arr.slice().sort((a,b)=>a.id-b.id);
+  if(NUMSORT[k]){ const f=NUMSORT[k]; return arr.slice().sort((a,b)=> f(b)-f(a) || a.id-b.id); }
   const key=m=> k==='eyesSig'?m.rec.fx.eyes.input : k==='eyesSens'?m.rec.fx.eyes.sens : m.rec.traits[k];
   return arr.slice().sort((a,b)=> String(key(a)).localeCompare(String(key(b))) || a.id-b.id); }
+// per-card badge showing WHY it's ranked where it is (shown only for the numeric sorts)
+function metricFor(m){ const k=F.sort, id=m.id, C=LIVE.c;
+  if(k==='worth'){ const v=HOLDINGS.bagOf(id); return '💰 '+(C.usd?'$':'')+Math.round(v).toLocaleString()+(C.usd?'':' XRD'); }
+  if(k==='social') return '🤝 '+HOLDINGS.countOf(id)+' in wallet';
+  if(k==='xfer') return '🔁 '+agoText(xferDaysOf(id));
+  if(MARKET_SORTS.has(k)){ const s=moodOf(m); return (s>=0?'📈 +':'📉 ')+(s*100).toFixed(0)+'% mood'; }
+  return ''; }
 function renderPage(){ const grid=document.getElementById('grid'); grid.innerHTML=''; chars.length=0;   // drop prior page's canvases (GC) + DOM
   const total=view.length, pages=Math.max(1,Math.ceil(total/PAGESZ)); page=Math.min(Math.max(0,page),pages-1);
   const start=page*PAGESZ, slice=view.slice(start,start+PAGESZ);
@@ -541,7 +655,14 @@ function renderPage(){ const grid=document.getElementById('grid'); grid.innerHTM
   let i=0; const CHUNK=6;   // build monkeys in small batches across animation frames -> the grid paints progressively, no single long stall
   (function buildChunk(){ const end=Math.min(i+CHUNK,slice.length); for(;i<end;i++) chars.push(buildChar(slice[i]));
     if(i<slice.length) requestAnimationFrame(buildChunk); else updateSpeech(); })(); }
-function applyF(){ view=sortV(META.filter(matchesF)); page=0; renderPage(); }
+function applyF(){
+  const grid=document.getElementById('grid'), pg=document.getElementById('pager');
+  if(HOLD_SORTS.has(F.sort)){
+    if(!HOLDINGS.ready){ if(grid) grid.innerHTML='<div class="stub">⟳ Loading holder balances from the ledger…</div>'; if(pg) pg.innerHTML=''; HOLDINGS.load().then(()=>{ if(HOLD_SORTS.has(F.sort)) applyF(); }); return; }
+    if(HOLDINGS.holders===0){ if(grid) grid.innerHTML='<div class="stub">💤 Holdings-based ranking activates once Ciggie Puffs are minted — none are held yet on <b>'+LIVE.net+'</b>. Add <code>?net=stokenet</code> to the URL to see the test holders.</div>'; if(pg) pg.innerHTML=''; view=[]; return; }
+    view=sortV(META.filter(matchesF).filter(m=>HOLDINGS.idToAcct[m.id])); page=0; renderPage(); return;   // rank only the held monkeys
+  }
+  view=sortV(META.filter(matchesF)); page=0; renderPage(); }
 
 function mkSelect(label,key,opts){ const d=document.createElement('div'); d.className='fctl'; const sid='f_'+key;
   d.innerHTML=`<label for="${sid}">${label}</label>`; const sel=document.createElement('select'); sel.id=sid;
@@ -563,7 +684,9 @@ const slotOpts=slot=>[['*','Any'],...SPEC.slots[slot].map(([n])=>[n,n])];
   g2.appendChild(mkSelect('Reactive FX','rfx',[['*','Any'],['coin','$CIGGIE coin rain'],['snow','Snowfall'],['rack','Officer ribbon rack'],['ticker','Live ticker'],['neon_tube','Neon tube'],['clock','Clock hands'],['bird','Bird perch'],['bib','BBQ bib'],['satellite','Satellite'],['halo_horns','Halo / Horns'],['tophat','Top hat'],['sombrero','Sombrero band'],['crown','Crown (gems)'],['crown_silver','Silver crown'],['xmas','Elf / Santa'],['patch','Eye patch (captain)']]));
   g2.appendChild(mkSelect('Eyes signal','eyesSig',[['*','Any'],['xrd','$XRD'],['early','$EARLY'],['ciggie','$CIGGIE'],['oci','$OCI']]));
   g2.appendChild(mkSelect('Eyes sensitivity','eyesSens',[['*','Any'],['hair','Hair-trigger'],['normal','Normal'],['stoic','Stoic']]));
-  g2.appendChild(mkSelect('Sort by','sort',[['id','Token ID'],['mon','Base'],['body','Body'],['chain','Necklace'],['bg','Background'],['head','Head'],['cig','Cigarette'],['eyesSig','Eyes signal'],['eyesSens','Eyes sensitivity']]));
+  g2.appendChild(mkSelect('Sort by','sort',[['id','Token ID'],
+    ['worth','Richest 💰'],['social','Most social 🤝'],['xfer','Recently transferred 🔁'],['mover','Biggest mood swing 📊'],['bull','Most bullish 📈'],['bear','Most bearish 📉'],
+    ['mon','Base'],['body','Body'],['chain','Necklace'],['bg','Background'],['head','Head'],['cig','Cigarette'],['eyesSig','Eyes signal'],['eyesSens','Eyes sensitivity']]));
   const rst=document.createElement('button'); rst.className='fbtn'; rst.textContent='Reset';
   rst.onclick=()=>{ for(const k in F)delete F[k]; F.sort='id'; document.querySelectorAll('#filters select').forEach(s=>{ const k=s.id.slice(2); s.value=(k==='sort')?'id':'*'; }); applyF(); };
   g2.appendChild(rst); fp.appendChild(g2); }
@@ -579,7 +702,7 @@ function renderPager(total,pages,start,shown){ const p=document.getElementById('
 applyF();
 // load speech AFTER the art is up — non-blocking, so slow/failed talk assets never stop the monkeys rendering
 // defer the 575 KB speech model until the browser is IDLE — the grid is fully interactive first, speech fills in after
-const loadTalk=()=>import('./talk/decoder.mjs?v=14').then(async m=>{ TALK={decode:m.decode, doc:m.parse(await bytesOf('./talk/ciggie.loomtalk?v='+VER))}; updateSpeech(); try{DEMO.updateSpeech();}catch(e){} }).catch(e=>console.warn('talk load failed:',e));
+const loadTalk=()=>import('./talk/decoder.mjs?v=14').then(async m=>{ TALK={decode:m.decode, doc:m.parse(await bytesOf('./talk/ciggie.loomtalk?v='+VER))}; updateSpeech(); try{DEMO.updateSpeech();}catch(e){} try{CAROUSEL.refreshSpeech();}catch(e){} }).catch(e=>console.warn('talk load failed:',e));
 setTimeout(loadTalk, 400);   // load the talk model on a timer — requestIdleCallback is starved by the always-on RAF
 
 const AN={eyeL:[105,107],eyeR:[151,107],ember:[191,168],top:[124,18],center:[124,116],feet:[124,205],clock:[136,226],birdpiv:[124,176],chirp:[152,214],drop:[156,164],bibsplat:[150,205]};
@@ -748,7 +871,8 @@ let t0=performance.now();
 const PROF={ch:null,last:-999};
 const pmodal=document.createElement('div'); pmodal.id='pmodal';
 pmodal.innerHTML=`<div class="pback"></div><div class="pcard"><button class="pclose">✕</button>
-  <div class="pcol-l"><canvas id="pcanvas" width="256" height="256"></canvas><div id="pquote" class="pquote"></div></div>
+  <div class="pcol-l"><canvas id="pcanvas" width="256" height="256"></canvas><div id="pquote" class="pquote"></div>
+    <button id="pexport" class="pexport">⬇ Export GIF</button><div id="pexstat" class="pexstat">full-rate · full loop · with its quote</div></div>
   <div class="pcol-r"><div id="pname" class="pname-big"></div><div id="psub" class="psub"></div><div id="plore" class="plore"></div>
     <div id="pstats" class="pstats"></div>
     <div class="phd">Reactive traits — live ledger inputs</div><div id="preact"></div>
@@ -758,6 +882,63 @@ document.body.appendChild(pmodal);
 function closeProfile(){ PROF.ch=null; pmodal.style.display='none'; }
 pmodal.querySelector('.pback').onclick=closeProfile; pmodal.querySelector('.pclose').onclick=closeProfile;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeProfile(); });
+// ---- EXPORT GIF: a higher-fps, full-loop GIF of this monkey (the wallet render is cut short + choppy: 20f/step4/~15fps);
+// this exports 60f/step2/30fps over a bob-seamless 120-tick loop, with the monkey's loom-talk quote baked into a text box. ----
+let gifencMod=null;
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function wrapText(ctx,text,maxW){ const words=String(text).split(' '), out=[]; let cur='';
+  for(const w of words){ const test=cur?cur+' '+w:w; if(ctx.measureText(test).width>maxW && cur){ out.push(cur); cur=w; } else cur=test; }
+  if(cur) out.push(cur); return out; }
+async function exportGif(){
+  const ch=PROF.ch; if(!ch) return;
+  const btn=document.getElementById('pexport'), stat=document.getElementById('pexstat'); if(!btn||btn.disabled) return;
+  btn.disabled=true; const setS=m=>{ if(stat) stat.textContent=m; };
+  try{
+    setS('Preparing encoder…'); if(!gifencMod) gifencMod=await import(cb('./gifenc.js'));
+    const { GIFEncoder, quantize, applyPalette } = gifencMod;
+    const saved={...G};                                                           // one consistent market state for the whole loop
+    const mPct=senti(ch.fx.eyes)*30, blended=clamp(mPct*0.7+(ch.social||0)*30*0.3,-30,30), moodId=moodFromPct(blended);
+    let line=''; if(TALK){ try{ line=TALK.decode(TALK.doc,ch.id,blended)||''; }catch(e){} }
+    const cap=(ch.st.eyewear==='patch'&&drive(ch.fx.eyewear)>=0.5)?'I am the captain now: ':'';
+    const quote='“'+cap+(line||'…')+'”';
+    const nameKey=line||('seed'+ch.nf.first), adj=ADJ[moodId][h32('a'+nameKey)%ADJ[moodId].length], noun=NOUN[h32('nn'+nameKey)%NOUN.length];   // reactive nickname (same as nameHTML)
+    const fullName=`${ch.nf.first} ${ch.nf.type} the ${adj} ${noun} ${ch.nf.last}`;   // includes the reactive "the Adj Noun" nickname
+    const stamp=new Date().toISOString().slice(0,16).replace('T',' ')+' UTC';         // ledger-state timestamp of this export
+    // layout: EW=256 to match the art; a quote box, then the (wrapped) name-with-nickname, then the watermark+timestamp
+    const EW=256, PADX=10, BTOP=266, BPAD=10, LH=18, NLH=16;
+    const meas=document.createElement('canvas').getContext('2d');
+    meas.font='italic 14px system-ui,sans-serif'; const qlines=wrapText(meas, quote, EW-2*PADX-2*BPAD);
+    meas.font='600 13px system-ui,sans-serif';   const nlines=wrapText(meas, `${fullName} · #${ch.id}`, EW-2*PADX);
+    const bubbleH=qlines.length*LH+2*BPAD, nameTop=BTOP+bubbleH+14, wmTop=nameTop+nlines.length*NLH+7, EH=wmTop+14+8;
+    const tmpl=document.createElement('canvas'); tmpl.width=EW; tmpl.height=EH; const tx=tmpl.getContext('2d');   // static bg+text, composited under the monkey each frame
+    tx.fillStyle='#0b0d12'; tx.fillRect(0,0,EW,EH);
+    rr(tx,PADX,BTOP,EW-2*PADX,bubbleH,10); tx.fillStyle='#1b2334'; tx.fill(); tx.strokeStyle='#2a3550'; tx.lineWidth=1; tx.stroke();
+    tx.fillStyle='#eaf0ff'; tx.font='italic 14px system-ui,sans-serif'; tx.textBaseline='top';
+    qlines.forEach((ln,i)=> tx.fillText(ln, PADX+BPAD, BTOP+BPAD+i*LH));
+    tx.textAlign='center'; tx.fillStyle='#eaf0ff'; tx.font='600 13px system-ui,sans-serif';
+    nlines.forEach((ln,i)=> tx.fillText(ln, EW/2, nameTop+i*NLH));
+    tx.font='10px system-ui,sans-serif'; tx.fillStyle='#6fe3b0'; tx.fillText(`ciggiepuffs.xrd.social · ${stamp}`, EW/2, wmTop); tx.textAlign='left';
+    const SPAN=120, STEP=2, DELAY=33, NF=SPAN/STEP;                                // higher fps + longer loop than the wallet GIF
+    const ec=document.createElement('canvas'); ec.width=EW; ec.height=EH; const ex=ec.getContext('2d'); ex.imageSmoothingEnabled=false;
+    const frames=[];
+    for(let f=0; f<NF; f++){ const t=f*STEP;
+      Object.assign(G,saved);                                                     // guard: a live refresh during a yield can't change the frames
+      drawChar(ch,t); ex.drawImage(tmpl,0,0); ex.drawImage(ch.ctx.canvas,0,0);
+      frames.push(ex.getImageData(0,0,EW,EH).data);                               // fresh array per getImageData — safe to retain
+      if((f&7)===7){ setS(`Rendering… ${Math.round((f+1)/NF*100)}%`); await new Promise(r=>requestAnimationFrame(r)); } }
+    Object.assign(G,saved);
+    setS('Encoding…'); await new Promise(r=>setTimeout(r,16));
+    let total=0; for(const fr of frames) total+=fr.length; const all=new Uint8Array(total); let o=0; for(const fr of frames){ all.set(fr,o); o+=fr.length; }
+    const palette=quantize(all,256), enc=GIFEncoder();                            // ONE global palette across all frames (no flicker, smaller)
+    for(const fr of frames) enc.writeFrame(applyPalette(fr,palette),EW,EH,{palette,delay:DELAY}); enc.finish();
+    const blob=new Blob([enc.bytes()],{type:'image/gif'}), url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`ciggie-puff-${ch.id}.gif`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),6000);
+    setS(`✓ ${EW}×${EH} · ${NF}f @ ${Math.round(1000/DELAY)}fps · ${(blob.size/1024|0)} KB`);
+  }catch(e){ console.warn('export failed',e); setS('Export failed — see console.'); }
+  finally{ btn.disabled=false; }
+}
+pmodal.querySelector('#pexport').onclick=exportGif;
 function fmtInput(k){ const v=+G[k]; if(k.endsWith('_usd'))return '$'+(v<1?v.toPrecision(3):v.toFixed(2)); if(['xrd','early','oci','ciggie'].includes(k))return (v>=0?'+':'')+v.toFixed(1)+'%'; return Math.round(v).toLocaleString(); }
 const INLABEL=k=>((INPUTS.find(x=>x[0]===k)||[])[1]||k);
 function affSVGbig(aff){ const CW=240,RH=17,CX=120,MX=100,HH=AFF_DIMS.length*RH+2; let s=`<svg width="${CW}" height="${HH}" viewBox="0 0 ${CW} ${HH}">`;
@@ -774,13 +955,17 @@ function reactList(ch){ const L=[['eyes','Eyes glow'],['smoke','Cigarette smoke'
     if(k==='body'&&st.body!=='whiteshirt')continue; if(k==='head'&&st.head!=='xmas')continue;
     R.push({k,label,fx}); } return R; }
 function openProfile(id){ const ch=charFor(id); if(!ch)return; PROF.ch=ch; pmodal.style.display='flex';
+  try{ drawChar(ch,(performance.now()-t0)/16.7); }catch(e){}   // prime the canvas so the preview is never blank (e.g. opened from the home carousel)
   const s=statOf(id); pmodal.scrollTop=0;
   pmodal.querySelector('#psub').textContent=`${ch.nf.first} ${ch.nf.type} ${ch.nf.last} · #${id} · ${[ch.st.mon!=='classic'&&ch.st.mon,ch.st.cig,ch.st.head!=='none'&&ch.st.head,ch.st.body!=='none'&&ch.st.body,ch.st.chain!=='none'&&ch.st.chain,ch.st.grillz!=='none'&&ch.st.grillz].filter(Boolean).join(' · ')}`;
   pmodal.querySelector('#plore').textContent=loreOf(id,ch.st,ch.nf,s);
-  pmodal.querySelector('#pstats').innerHTML=`<span>🚬 ${s.cigs.toLocaleString()} cigs</span><span>⚡ ${s.power.toLocaleString()} power</span><span>📦 ${s.packs}/day</span><span>🏳 ${s.rugs} rugs</span><span>💎 ${s.dmd}% diamond</span>`;
+  const held=HOLDINGS.ready && HOLDINGS.idToAcct[id], C=LIVE.c;   // real holder data when the collection is minted
+  const holdHTML=held?`<span>💰 ${C.usd?'$':''}${Math.round(HOLDINGS.bagOf(id)).toLocaleString()}${C.usd?'':' XRD'} bag</span><span>🐒 ${HOLDINGS.countOf(id)} in wallet</span>`:'';
+  pmodal.querySelector('#pstats').innerHTML=holdHTML+`<span>🔁 transferred ${agoText(xferDaysOf(id))}</span><span>🚬 ${s.cigs.toLocaleString()} cigs</span><span>⚡ ${s.power.toLocaleString()} power</span><span>🏳 ${s.rugs} rugs</span><span>💎 ${s.dmd}% diamond</span>`;
   pmodal.querySelector('#paff').innerHTML=affSVGbig(ch.aff);
   profTick(0,true); }
 function profTick(t,force){ const ch=PROF.ch; if(!ch)return;
+  drawChar(ch,t);   // render THIS char every frame so the profile animates on its own — NOT relying on the grid/carousel loop (carousel rotation drops the opened char from its ticked set, which was freezing the profile)
   const pc=document.getElementById('pcanvas'), x=pc.getContext('2d'); x.imageSmoothingEnabled=false; x.clearRect(0,0,256,256); x.drawImage(ch.ctx.canvas,0,0);   // live animated monkey
   if(!force && t-PROF.last<18) return; PROF.last=t;   // throttle the data readouts to ~300ms
   const mPct=senti(ch.fx.eyes)*30, blended=clamp(mPct*0.7+(ch.social||0)*30*0.3,-30,30), moodId=moodFromPct(blended);
@@ -928,7 +1113,7 @@ const DEMO={chars:[], tick(t){ if(isHidden('demo')||!this.chars.length) return; 
 function frame(){
   const t=(performance.now()-t0)/16.7;
   if(!isHidden('collection')) for(const ch of chars) drawChar(ch,t);
-  DEMO.tick(t); SEARCH.tick(t); OWNED.tick(t);
+  CAROUSEL.tick(t); DEMO.tick(t); SEARCH.tick(t); OWNED.tick(t);
   if(PROF.ch) profTick(t);
   requestAnimationFrame(frame);
 }
@@ -993,9 +1178,40 @@ function buildDemo(){
 }
 buildDemo();
 
+// ---- HOME CAROUSEL: a live strip of 5 monkeys that auto-cycles through the collection ----
+// Each card is a real buildChar canvas (same engine as the grid), driven by live mainnet G; every few seconds one
+// card fades out and is replaced by a fresh random token -> reads as "scrolling through the collection".
+const CAROUSEL={ cards:[], slot:0, rnd:(h32('cz'+Date.now())>>>0),
+  rint(){ this.rnd=(Math.imul(this.rnd^0x9e3779b9,0x01000193))>>>0; return this.rnd; },   // seeded per visit so the picks vary
+  randId(){ return this.rint()%N; },
+  tick(t){ if(isHidden('home')||!this.cards.length) return; for(const c of this.cards) drawChar(c.ch,t); },
+  speechFor(c){ if(!TALK) return;                                                          // market-only mood (no wallet social on the home strip)
+    const blended=clamp(senti(c.ch.fx.eyes)*30,-30,30), moodId=moodFromPct(blended);
+    let line=null; try{ line=TALK.decode(TALK.doc,c.id,blended); }catch(e){}
+    c.nameEl.innerHTML=nameHTML(c.nf,line,moodId); if(line!=null) c.sayEl.textContent='“'+line+'”'; },
+  refreshSpeech(){ for(const c of this.cards) this.speechFor(c); },
+  mkCard(id){ const rec=resolve(SPEC,id), nf=nameFixed(id);
+    const card=document.createElement('div'); card.className='ccard'; card.onclick=()=>openProfile(id);
+    const holder=document.createElement('div'); const ch=buildChar({id,rec,target:holder}); const cv=ch.ctx.canvas; card.appendChild(cv);   // reuse the grid builder; move its canvas onto the card
+    const nmEl=document.createElement('div'); nmEl.className='cc-name'; nmEl.innerHTML=nameHTML(nf,null,moodFromPct(senti(ch.fx.eyes)*30)); card.appendChild(nmEl);
+    const sayEl=document.createElement('div'); sayEl.className='cc-say'; card.appendChild(sayEl);
+    const c={id,ch,nf,nameEl:nmEl,sayEl,card}; this.speechFor(c); return c; },
+  build(){ if(!getImg('base')){ setTimeout(()=>this.build(),150); return; }               // wait for the art layers to decode
+    const strip=document.getElementById('carousel'); if(!strip||this.cards.length) return;
+    const seen=new Set(); for(let i=0;i<5;i++){ let id; do{ id=this.randId(); }while(seen.has(id)); seen.add(id);
+      const c=this.mkCard(id); strip.appendChild(c.card); this.cards.push(c); }
+    setInterval(()=>this.rotate(), 3800); },
+  rotate(){ if(isHidden('home')||!this.cards.length) return;                                // round-robin: fade one card out, swap in a fresh random monkey, fade in
+    const i=(this.slot++)%this.cards.length, old=this.cards[i]; old.card.classList.add('swap');
+    setTimeout(()=>{ const ids=new Set(this.cards.map(c=>c.id)); let id; do{ id=this.randId(); }while(ids.has(id));
+      const c=this.mkCard(id); c.card.classList.add('swap'); old.card.replaceWith(c.card); this.cards[i]=c;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>c.card.classList.remove('swap'))); }, 460); } };
+CAROUSEL.build();
+
 // ---- SEARCH: by #id, by name (deterministic index), or by wallet address (stokenet holdings) ----
 const SEARCH={chars:[], tick(t){ if(isHidden('search')||!this.chars.length) return; for(const ch of this.chars) drawChar(ch,t); }};
-function charFor(id){ let ch=chars.find(c=>c.id===id)||SEARCH.chars.find(c=>c.id===id);
+function charFor(id){ let ch=chars.find(c=>c.id===id)||SEARCH.chars.find(c=>c.id===id)||OWNED.chars.find(c=>c.id===id);   // reuse a LIVE, already-ticked char so the profile canvas animates
+  if(!ch){ const cz=CAROUSEL.cards.find(c=>c.id===id); if(cz) ch=cz.ch; }
   if(!ch){ const d=DEMO.chars.find(x=>x.ch.id===id); ch=d?d.ch:buildChar({id,rec:resolve(SPEC,id),target:document.createElement('div')}); } return ch; }
 let NAMEIDX=null;
 function nameSearch(q){ if(!NAMEIDX) NAMEIDX=Array.from({length:10000},(_,id)=>{const nf=nameFixed(id);return (nf.first+' '+nf.type+' '+nf.last).toLowerCase();});
