@@ -256,7 +256,7 @@
 
   <section id="connect" class="route" hidden>
     <h2 class="sect-h">Connect your wallet</h2>
-    <p class="sect-sub">Connect the <b>Radix Wallet</b> (stokenet) to see the Ciggie Puffs in your account. It's <b>read-only</b> — we only read which monkeys you hold; we never ask to move anything.</p>
+    <p class="sect-sub">Connect the <b>Radix Wallet</b> to see the Ciggie Puffs in your account. It's <b>read-only</b> — we only read which monkeys you hold; we never ask to move anything.</p>
     <div id="connectbar"><radix-connect-button></radix-connect-button></div>
     <div id="connstat" class="sect-sub" style="margin-top:14px"></div>
     <div id="ownedresults"></div>
@@ -282,7 +282,7 @@ const engine = AS ? window.Recipe : await import('./resolve.mjs?v=1');   // coll
 const { resolve } = engine;
 const lzmaMod = AS ? window.LZMA : await import('./lzma.mjs?v=1');   // LZMA (.lzma alone) decoder — assets are xz-class compressed; browsers have no native xz
 const { decompressLZMA } = lzmaMod;
-const VER='20261003-profile'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
+const VER='20261008-mainnet'   // bump on every asset rebuild — busts iOS Safari's aggressive .loom/.png cache
 const cb=p=>p+(p.includes('?')?'&':'?')+'v='+VER;
 async function bytesOf(p){ let raw = (AS&&AS[p]) ? Uint8Array.from(atob(AS[p]),c=>c.charCodeAt(0)) : new Uint8Array(await (await fetch(cb(p),{cache:'no-store'})).arrayBuffer());
   if(raw.length>2 && raw[0]===0x1f && raw[1]===0x8b){ raw = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()); }   // gzip: inflate natively
@@ -436,12 +436,16 @@ const NETS={
     pools:{ early:{a:'pool_rdx1c5hm2rt67scp22pq6tpkfg6cd22g0wwz88065wsy9gdfnd86sv3t4t',k:'basic'},   // EARLY/XRD basic pool's native TwoResourcePool (reserve ratio)
             oci:{a:'pool_rdx1ckyg8aujf09uh8qlz6asst75g5w6pl6vu8nl6qrhskawcndyk6585y',k:'basic'},     // OCI/XRD basic pool
             ciggie:{a:'component_rdx1cryxd9d5q8fj8fh6qq4ayaa5kwd8hzlsk2ymn67p29q77lhudhmruj',k:'prec'} },  // CIGGIE/XRD Ociswap PRECISION pool; CIGGIE=x -> price = price_sqrt^2 XRD
-    puffs:null },                        // Ciggie-Puffs NFT resource (set after mint)
+    puffs:'resource_rdx1nguzt4azpvkgsr976payaxe59runcaa3l3gsshk08w3g0pdevhqrn4',      /*MAINNET_PUFFS set after mint (wire-mainnet.mjs) — Ciggie-Puffs NFT resource*/
+    component:'component_rdx1cq3y9ecejld6f0mqyhvhtmqrn5urhmh8n9yyewp8nqp7arneyxcr02',  /*MAINNET_COMPONENT set after mint — collection component (on-ledger render path)*/
+    dappDef:null,    /*MAINNET_DAPPDEF set after mint — ROLA dApp-definition account for wallet connect*/
+  },
   stokenet:{ gw:'https://stokenet.radixdlt.com',
     xrd:'resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc', usd:null,   // no stokenet USD pool -> prices shown in XRD
     pools:{ early:null, oci:null, ciggie:null },
     puffs:'resource_tdx_2_1nfm5fsfgpqv3m2n42etwemaef3yuseuqsq9ha5nfzh0rfy2adqwuyv',          // LIVE stokenet Ciggie Puffs NFT resource (deployed 2026-10-03)
-    component:'component_tdx_2_1cr79kf7pycgx8efwjmdw7uc4xxsvqqpx63fcvtp25c2k3yc84sdscs' } };  // collection component (bundle KVStore source for on-ledger render path)
+    component:'component_tdx_2_1cr79kf7pycgx8efwjmdw7uc4xxsvqqpx63fcvtp25c2k3yc84sdscs',      // collection component (bundle KVStore source for on-ledger render path)
+    dappDef:'account_tdx_2_12xnhvgfzfhvdguuer65k9jwcrufhkksdg0rts8nm5t6n87js6x3fd6' } };      // stokenet dApp-definition account (ROLA connect-and-read)
 const LIVE={ net:'mainnet', on:false, timer:null, account:null, _ago:null, replay:null, get c(){return NETS[this.net];} };
 const gwPost=(p,b)=>fetch(LIVE.c.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json());
 function setInput(k,v,disp){ if(!(k in G))return; G[k]=v; const R=RANGES[k]; if(R){ R.r.value=v; const el=document.getElementById('v_'+k); if(el) el.textContent=disp!=null?disp:R.fmt(v); } }
@@ -1216,7 +1220,7 @@ function charFor(id){ let ch=chars.find(c=>c.id===id)||SEARCH.chars.find(c=>c.id
 let NAMEIDX=null;
 function nameSearch(q){ if(!NAMEIDX) NAMEIDX=Array.from({length:10000},(_,id)=>{const nf=nameFixed(id);return (nf.first+' '+nf.type+' '+nf.last).toLowerCase();});
   const s=q.toLowerCase(), out=[]; for(let id=0;id<10000;id++){ if(NAMEIDX[id].includes(s)){ out.push(id); if(out.length>=400) break; } } return out; }
-async function ownedIds(addr){ try{ const SN=NETS.stokenet; const post=(p,b)=>fetch(SN.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json());
+async function ownedIds(addr){ try{ const SN=LIVE.c; if(!SN.puffs) return []; const post=(p,b)=>fetch(SN.gw+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json());
   const page=await post('/state/entity/page/non-fungibles/',{address:addr,aggregation_level:'Vault'}); const row=(page.items||[]).find(i=>i.resource_address===SN.puffs); if(!row) return [];
   const ids=[]; for(const v of (row.vaults?.items||[])){ let cur; do{ const r=await post('/state/entity/page/non-fungible-vault/ids',{address:addr,resource_address:SN.puffs,vault_address:v.vault_address,cursor:cur}); for(const x of (r.items||[])){ const m=/#(\d+)#/.exec(x); if(m) ids.push(+m[1]); } cur=r.next_cursor; }while(cur); }
   return ids.sort((a,b)=>a-b); }catch(e){ console.warn('ownedIds',e); return null; } }
@@ -1230,7 +1234,7 @@ async function runSearch(){ const q=document.getElementById('qbox').value.trim()
   SEARCH.chars.length=0; res.innerHTML=''; if(!q){ info.textContent=''; return; }
   let ids=[];
   if(/^#?\d+$/.test(q)){ const id=+q.replace('#',''); if(id>=0&&id<10000){ ids=[id]; info.textContent='Token #'+id; } else { info.textContent='No token #'+id+' — the collection is 0–9999.'; return; } }
-  else if(q.toLowerCase().startsWith('account_')){ info.textContent='Looking up holdings on stokenet…'; const owned=await ownedIds(q); if(owned===null){ info.textContent='Could not read that account.'; return; } ids=owned; info.textContent=ids.length?ids.length+' Ciggie Puff'+(ids.length>1?'s':'')+' held by '+q.slice(0,18)+'…':'No Ciggie Puffs in that account.'; }
+  else if(q.toLowerCase().startsWith('account_')){ info.textContent='Looking up holdings on '+LIVE.net+'…'; const owned=await ownedIds(q); if(owned===null){ info.textContent='Could not read that account.'; return; } ids=owned; info.textContent=ids.length?ids.length+' Ciggie Puff'+(ids.length>1?'s':'')+' held by '+q.slice(0,18)+'…':'No Ciggie Puffs in that account.'; }
   else { const all=nameSearch(q); ids=all.slice(0,48); info.textContent=all.length?all.length+' name match'+(all.length>1?'es':'')+' for “'+q+'”'+(all.length>48?' — showing first 48':''):'No names match “'+q+'”.'; }
   for(const id of ids) renderResult(id,res);
 }
@@ -1238,17 +1242,20 @@ async function runSearch(){ const q=document.getElementById('qbox').value.trim()
   if(go) go.onclick=runSearch; if(box) box.addEventListener('keydown',e=>{ if(e.key==='Enter') runSearch(); }); }
 
 // ---- CONNECT: ROLA connect-and-read via radix-dapp-toolkit (lazy-loaded on first #connect view) ----
-const DAPP_DEF='account_tdx_2_12xnhvgfzfhvdguuer65k9jwcrufhkksdg0rts8nm5t6n87js6x3fd6';
+// Network follows the site network (LIVE.net): mainnet once the collection is minted + wired, else stokenet via
+// ?net=stokenet. Pre-mint mainnet has no collection -> show a graceful notice instead of a broken connector.
 const OWNED={chars:[], tick(t){ if(isHidden('connect')||!this.chars.length) return; for(const ch of this.chars) drawChar(ch,t); }};
 let rdtInited=false;
-async function initConnect(){ if(rdtInited) return; rdtInited=true;
-  const stat=document.getElementById('connstat'); if(stat) stat.textContent='Loading wallet connector…';
+async function initConnect(){ if(rdtInited) return;
+  const stat=document.getElementById('connstat'), C=LIVE.c;
+  if(!C.dappDef || !C.puffs){ if(stat) stat.innerHTML=`Wallet connect goes live when the collection mints on <b>${LIVE.net}</b>. For the testnet collection, add <code>?net=stokenet</code> to the URL.`; return; }
+  rdtInited=true; if(stat) stat.textContent='Loading wallet connector…';
   try{
     const { RadixDappToolkit, DataRequestBuilder, RadixNetwork } = await import('https://esm.sh/@radixdlt/radix-dapp-toolkit@2.2.0');
-    const rdt = RadixDappToolkit({ dAppDefinitionAddress: DAPP_DEF, networkId: RadixNetwork.Stokenet, applicationName:'Ciggie Puffs', applicationVersion:'1.0.0' });
+    const rdt = RadixDappToolkit({ dAppDefinitionAddress: C.dappDef, networkId: LIVE.net==='mainnet'?RadixNetwork.Mainnet:RadixNetwork.Stokenet, applicationName:'Ciggie Puffs', applicationVersion:'1.0.0' });
     rdt.walletApi.setRequestData(DataRequestBuilder.accounts().atLeast(1));
     rdt.walletApi.walletData$.subscribe(data=>{ showOwned((data&&data.accounts)||[]); });
-    if(stat) stat.textContent='Tap “Connect” and approve in your Radix Wallet (stokenet).';
+    if(stat) stat.textContent=`Tap “Connect” and approve in your Radix Wallet (${LIVE.net}).`;
   }catch(e){ console.warn('rdt load failed',e); rdtInited=false; if(stat) stat.textContent='Could not load the wallet connector. Check your connection and try again.'; }
 }
 async function showOwned(accounts){
